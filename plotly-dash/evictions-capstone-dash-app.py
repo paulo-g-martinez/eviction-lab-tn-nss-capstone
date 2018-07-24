@@ -279,7 +279,82 @@ corrHistPovEvicTrace = go.Histogram(
 )
 corrHistogramData = [corrHistPovEvicTrace]
 corrHistogramLayout = go.Layout(barmode = 'stack')
-#------------
+###### -------- bootstrapReplicates DATA
+# for 1,000 simulated samples
+bs_replicates = np.empty(1000)
+for i in range(1000):
+    # get indices of the empirical data
+    inds = list(counties_evicts_df.dropna()['eviction-rate'].index)
+
+    # get random selection of the indices (note: "double-dipping" is allowed)
+    bs_inds = np.random.choice(list(counties_evicts_df.dropna()['eviction-rate'].index),
+                              len(list(counties_evicts_df.dropna()['eviction-rate'].index)))
+
+    # get the randomly sampled data pairs
+    bs_ev_rate = counties_evicts_df.dropna()['eviction-rate'][bs_inds]
+    bs_pv_rate = counties_evicts_df.dropna()['poverty-rate'][bs_inds]
+
+    # get the
+    bs_replicates[i] = np.corrcoef(x = bs_ev_rate, y = bs_pv_rate)[0][1]
+bsRepsTrace = go.Histogram(
+    x = bs_replicates,
+    name = 'County-Wide BS Rep. Distribution',
+    #text = str(np.median(filtered_df['pct-white'])),
+    #hoverinfo = 'text',
+    #marker = {'color' : filtered_df[filtered_df.name == cnty]['pct-white'].dropna().mean()},
+    #marker = {'color': np.mean([p for p in filtered_df[filtered_df.name == cnty]['pct-white'] if not pd.isnull(p)])},
+    #marker = {'color': x/1},
+    #marker = {'colorscale': 'Viridis'},
+    opacity = .2,
+    #cumulative = True,
+    #autobinx = False,
+    #xbins = {'start': -1.0, 'end': 1.0, 'size' : .1}
+)
+bsReplicatesData = [bsRepsTrace]
+bsReplicatesLayout = go.Layout(title = '95% Confidence Interval for Corr. Coeff: {}'.format(np.percentile(bs_replicates, [2.5, 97.5]).round(2)),
+    xaxis = {'title': 'Coefficient'},
+    yaxis = {'title': 'Count'},
+    hovermode = 'closest',
+    paper_bgcolor = '#F4F4F8',
+    plot_bgcolor = '#F4F4F8',
+    #legend = {'x': -.1, 'y': 1.3, 'orientation': 'h'},
+    #cumulative = True,
+    #colorbar = True,
+    shapes = [
+        # x,y reference to the plot, paper respectively
+        {
+            'type': 'line',
+            'xref': 'x',
+            'yref': 'paper',
+            'x0': -0.21,
+            'y0': 0,
+            'x1': -0.21,
+            'y1': 0.9,
+            'line': {
+                'color': 'red',
+                'width': 2,
+            },
+        },
+        # rectangle confidence Interval
+        {
+            'type': 'rect',
+            'yref': 'paper',
+            'x0': np.percentile(bs_replicates, 2.5),
+            'y0': 0,
+            'x1': np.percentile(bs_replicates, 97.5),
+            'y1': 0.9,
+            'line': {
+                'color': 'red',
+                'width': .5
+            },
+            'fillcolor': 'red',
+            'opacity': '.1',
+            }
+
+        #},
+    ]
+)
+# ------------
 
 YEARS = [1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016]
 BINS = ['0-2', '2.1-4', '4.1-6', '6.1-8', '8.1-10', '10.1-12', '12.1-14', \
@@ -320,11 +395,6 @@ app.layout = html.Div(children=[
 		dcc.Graph(id = 'time-series',
 			figure = go.Figure(data = timeSeriesData, layout = timeSeriesLayout)
 		),
-		#html.P('Select County:(currently unused)', style={'display': 'inline-block'}),
-		#dcc.Dropdown(id = 'county-dropdown',
-        #    options = [{'label':cnty, 'value':cnty} for cnty in counties_evicts_df.name.unique()]
-		#),
-        #html.Br(),
         html.Div([
         html.P("Pick an Individual Year To Highlight and Analyze Below."),
         html.Div([
@@ -381,7 +451,16 @@ app.layout = html.Div(children=[
     html.Br(),
     dcc.Graph(id = 'corr-histogram',
         figure = go.Figure(data = corrHistogramData, layout = corrHistogramLayout)
-    )
+    ),
+	html.P('Select County:(currently unused)', style={'display': 'inline-block'}),
+	dcc.Dropdown(id = 'county-dropdown',
+        options = [{'label':cnty, 'value':cnty} for cnty in counties_evicts_df.name.unique()],
+        value = None,
+	),
+    #html.Br(),
+    dcc.Graph(id = 'bootstrap-replicates-distribution',
+        figure = go.Figure(data = bsReplicatesData, layout = bsReplicatesLayout)
+    ),
 	], className='five columns', style={'margin':0}),
 ])
 app.css.append_css({'external_url': 'https://codepen.io/plotly/pen/EQZeaW.css'}),
@@ -390,15 +469,20 @@ app.css.append_css({'external_url': 'https://codepen.io/plotly/pen/EQZeaW.css'})
     dash.dependencies.Output('scatter-with-slider', 'figure'),
     [dash.dependencies.Input('year-slider', 'value'),
                         Input('low-checkbox', 'values'),
-                        Input('checked-years', 'values')
+                        Input('checked-years', 'values'),
+                        Input('county-dropdown', 'value')
     ])
-def update_scatter(selected_year, checklist_values, checked_year_values):
+def update_scatter(selected_year, checklist_values, checked_year_values, selected_county):
     #print('selected_year', selected_year)
+    print('============>>>>>>>>sel cnty', selected_county)
     #------ handle filters
     fltr = [str(y) in checked_year_values for y in counties_evicts_df.year]
     if 'low_flag_filter' in checklist_values:
         fltr = [f and bnfd for f, bnfd in zip(fltr, BonafideRows)]
     filtered_df = counties_evicts_df[fltr]
+    # filter by county
+    if selected_county != None:
+        filtered_df = filtered_df[[cnty in selected_county for cnty in filtered_df.name]]
     #------ add checked year scatter and line
     traces=[]
     # add the checked scatter
@@ -409,7 +493,7 @@ def update_scatter(selected_year, checklist_values, checked_year_values):
         mode = 'markers',
         opacity = '0.4',
         marker = {'symbol': 'circle',#'circle-open',
-            'size' : 8,
+            'size' : 10,
             'line': {'width':.5, 'color': 'white'},
             'color': counties_evicts_df['pct-white'],
             'colorbar': {'x': -.3, 'title': 'pct-white','thickness': 15},
@@ -451,8 +535,8 @@ def update_scatter(selected_year, checklist_values, checked_year_values):
             mode = 'markers',
             opacity = '0.6',
             marker = {'symbol': 'circle-open',
-                'size' : 9,
-                'line': {'width':2, 'color': 'black'},
+                'size' : 11,
+                'line': {'width':1.5, 'color': 'black'},
                 'color': 'black',
                 },
             name = '{} Counties'.format(selected_year),
@@ -497,6 +581,7 @@ def update_scatter(selected_year, checklist_values, checked_year_values):
 
                     )
     }
+
 @app.callback(
     dash.dependencies.Output('corr-timeseries', 'figure'),
     [dash.dependencies.Input('year-slider', 'value'),
@@ -579,7 +664,7 @@ def update_histogram(checklist_values, checked_year_values):
     filtered_df = counties_evicts_df[fltr]
     #------ add trace for each county
     traces = []
-    for cnty in filtered_df.name.unique():
+    for cnty in sorted(set(filtered_df.name)):
         if not pd.isnull(np.corrcoef(
                 x = filtered_df[filtered_df.name == cnty].dropna()['eviction-rate'],
                 y = filtered_df[filtered_df.name == cnty].dropna()['poverty-rate']
@@ -596,7 +681,7 @@ def update_histogram(checklist_values, checked_year_values):
                                 #text = str(np.median(filtered_df['pct-white'])),
                                 #hoverinfo = 'text',
                                 #marker = {'color' : filtered_df[filtered_df.name == cnty]['pct-white'].dropna().mean()},
-                                marker = {'color': np.mean([p for p in filtered_df[filtered_df.name == cnty]['pct-white'] if not pd.isnull(p)])},
+                                #marker = {'color': np.mean([p for p in filtered_df[filtered_df.name == cnty]['pct-white'] if not pd.isnull(p)])},
                                 #marker = {'color': x/1},
                                 #marker = {'colorscale': 'Viridis'},
                                 opacity = .7,
@@ -622,6 +707,104 @@ def update_histogram(checklist_values, checked_year_values):
         )
     }
 
+@app.callback(
+    dash.dependencies.Output('bootstrap-replicates-distribution', 'figure'),
+    [dash.dependencies.Input('low-checkbox', 'values'),
+                        Input('checked-years', 'values'),
+                        Input('county-dropdown', 'value')]
+)
+def update_confidence_interval(checklist_values, checked_year_values, selected_county):
+    #------ handle filters
+    #print('in update conf func')
+    fltr = [str(y) in checked_year_values for y in counties_evicts_df.year]
+    if 'low_flag_filter' in checklist_values:
+        fltr = [f and bnfd for f, bnfd in zip(fltr, BonafideRows)]
+    filtered_df = counties_evicts_df[fltr]
+    if selected_county != None:
+        filtered_df = filtered_df[[cnty in selected_county for cnty in filtered_df.name]]
+    #------ add trace for each county
+    traces = []
+    bs_replicates = np.zeros(200)
+    print('entering bs reps loop')
+    for i in range(200):
+        #print(i)
+        # get indices of the empirical data
+        inds = list(filtered_df.dropna()['eviction-rate'].index)
+        # get random selection of the indices (note: "double-dipping" is allowed)
+        bs_inds = np.random.choice(list(filtered_df.dropna()['eviction-rate'].index),
+                                    len(list(filtered_df.dropna()['eviction-rate'].index)))
+        # get the randomly sampled data pairs
+        bs_ev_rate = filtered_df.dropna()['eviction-rate'][bs_inds]
+        bs_pv_rate = filtered_df.dropna()['poverty-rate'][bs_inds]
+        # get the bs replicates themselves
+        if not pd.isnull(np.corrcoef(x = bs_ev_rate, y = bs_pv_rate)[0][1]):
+            bs_replicates[i] = np.corrcoef(x = bs_ev_rate, y = bs_pv_rate)[0][1]
+        xbn = [r for r in bs_replicates if not pd.isnull(r)]
+    traces.append(go.Histogram(
+        #x = bs_replicates.dropna(),
+        x = xbn,
+        name = 'County-Wide BS Rep. Distribution',
+        #text = str(np.median(filtered_df['pct-white'])),
+        #hoverinfo = 'text',
+        #marker = {'color' : filtered_df[filtered_df.name == cnty]['pct-white'].dropna().mean()},
+        #marker = {'color': np.mean([p for p in filtered_df[filtered_df.name == cnty]['pct-white'] if not pd.isnull(p)])},
+        #marker = {'color': x/1},
+        #marker = {'colorscale': 'Viridis'},
+        opacity = .2,
+        #cumulative = True,
+        #autobinx = False,
+        #xbins = {'start': -1.0, 'end': 1.0, 'size' : .1}
+    ))
+
+    return { # can only return first positional output
+        'data': traces,
+        'layout': go.Layout(title = '95% Confidence Interval for Corr. Coeff: {}'.format(np.percentile(xbn, [2.5, 97.5]).round(2)),
+
+                        yaxis = {'title': 'Count'},
+                        xaxis = {'title': 'Correlation Coeff.',
+                            'range': [-1.1, 1.1]},
+                        hovermode = 'closest',
+                        paper_bgcolor = '#F4F4F8',
+                        plot_bgcolor = '#F4F4F8',
+                        #legend = {'x': -.1, 'y': 1.3, 'orientation': 'h'},
+                        #cumulative = True,
+                        #colorbar = True,
+                        shapes = [
+                        # x,y reference to the plot, paper respectively
+                        {
+                        'type': 'line',
+                        'xref': 'x',
+                        'yref': 'paper',
+                        'x0': round(np.corrcoef(x = filtered_df.dropna()['eviction-rate'],
+                                                y = filtered_df.dropna()['poverty-rate']
+                                                )[0][1], 2),
+                        'y0': 0,
+                        'x1': round(np.corrcoef(x = filtered_df.dropna()['eviction-rate'],
+                                                y = filtered_df.dropna()['poverty-rate']
+                                                )[0][1], 2),
+                        'y1': 0.9,
+                        'line': {
+                            'color': 'red',
+                            'width': 2,
+                            },
+                        },
+                        # rectangle confidence Interval
+                        {
+                        'type': 'rect',
+                        'yref': 'paper',
+                        'x0': np.percentile(xbn, 2.5),
+                        'y0': 0,
+                        'x1': np.percentile(xbn, 97.5),
+                        'y1': 0.9,
+                        'line': {
+                            'color': 'red',
+                            'width': .5
+                            },
+                            'fillcolor': 'red',
+                            'opacity': '.1',
+                            }]
+            )
+    }
 
 @app.callback(
     dash.dependencies.Output('checked-years', 'values'),
