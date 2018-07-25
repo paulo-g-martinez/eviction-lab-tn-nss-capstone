@@ -3,7 +3,7 @@ import dash
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output, State
-import dash_colorscales
+#import dash_colorscales
 import pandas as pd
 import cufflinks as cf
 import numpy as np
@@ -14,7 +14,7 @@ from scipy import stats
 
 from plotly.offline import init_notebook_mode, iplot
 from IPython.display import display, HTML
-init_notebook_mode(connected = True)
+#init_notebook_mode(connected = True)
 
 #app = dash.Dash(__name__)
 app = dash.Dash()
@@ -379,16 +379,13 @@ app.layout = html.Div(children=[
 	html.Div([ #-- LEFT COLUMN
 		html.Div([
 			html.Div([
-				html.H1(children='Evictions & Poveryt in Tennessee, 2000 - 2016',
+				html.H1(children='Evictions & Poverty in Tennessee, 2000 - 2016',
 						style = {'fontWeight': 999, 'fontSize': 40}
 				), # title
 			]),
 		html.Div([
-			html.P('Data: Matthew Desmond, Ashley Gromis, Lavar Edmonds, \
-			James Hendrickson, Katie Krywokulski, Lillian Leung, and Adam \
-			Porton. Eviction Lab National Database: Version 1.0. Princeton: \
-			Princeton University, 2018, www.evictionlab.org.',
-			style = {'fontSize': 12}
+			html.P('This research uses data from The Eviction Lab at Princeton University, a project directed by Matthew Desmond and designed by Ashley Gromis, Lavar Edmonds, James Hendrickson, Katie Krywokulski, Lillian Leung, and Adam Porton. The Eviction Lab is funded by the JPB, Gates, and Ford Foundations as well as the Chan Zuckerberg Initiative. More information is found at evictionlab.org.',
+			style = {'fontSize': 10}
 			) # citation
 		], style={'margin':0}),
 		], style={'margin':0} ),
@@ -436,17 +433,14 @@ app.layout = html.Div(children=[
 	], className='seven columns', style={'margin':20}),
 
 	html.Div([ #--- RIGHT COLUMN
-    html.H2('What is the Story?'),
+    html.H4("Here's A Story For You")],
+    style={'display': 'inline-block', 'marginTop': 20}),
+    html.Div([
+    html.P('"Today, most poor renting families spend at least half of their income on housing costs,"', style = {'fontSize': 12}),
+    html.P('-- with one in four of those families spending over 70 percent of their income just on rent and utilities.',style = {'fontSize': 12}), html.P('--Incomes for Americans of modest means have flatlined while housing costs have soared.',style = {'fontSize': 12}), html.P('-- Only one in four families who qualifies for affordable housing programs gets any kind of help.',style = {'fontSize': 12}), html.P('-- a growing number are living one misstep or emergency away from eviction."*',style = {'fontSize': 12}),
     html.H3('Time Series Insights'),
-    html.H3('Scatter Plot Insights'),
-    html.H2('What is the Story?'),
-    html.H3('Time Series Insights'),
-    html.H3('Scatter Plot Insights'),
-    html.H2('What is the Story?'),
-    html.H3('Time Series Insights'),
-    html.H3('Scatter Plot Insights'),
-    html.H2('What is the Story?'),
-    html.H3('Time Series Insights'),
+    html.P('We start out with the simple change of eviction rates (Ratio of the number of renter-occupied households in an area that received an eviction judgement in which renters were ordered to leave) and poverty rates (percent of the population with income in the past 12 months below the poverty level) over time. Notice how the trends change around 2009; the peak of the housing crisis.',style = {'fontSize': 12}),
+    html.P('Click on a legend do display that time-series. Double click on a legend to hide all others. (Double clikc between legends to display everything!)',style = {'fontSize': 12}),
     html.H3('Scatter Plot Insights'),
     html.Br(),
     dcc.Graph(id = 'corr-histogram',
@@ -461,6 +455,7 @@ app.layout = html.Div(children=[
     dcc.Graph(id = 'bootstrap-replicates-distribution',
         figure = go.Figure(data = bsReplicatesData, layout = bsReplicatesLayout)
     ),
+    html.P('* This research uses data from The Eviction Lab at Princeton University, a project directed by Matthew Desmond and designed by Ashley Gromis, Lavar Edmonds, James Hendrickson, Katie Krywokulski, Lillian Leung, and Adam Porton. The Eviction Lab is funded by the JPB, Gates, and Ford Foundations as well as the Chan Zuckerberg Initiative. More information is found at evictionlab.org., consulted, 07-24-2018, CST')
 	], className='five columns', style={'margin':0}),
 ])
 app.css.append_css({'external_url': 'https://codepen.io/plotly/pen/EQZeaW.css'}),
