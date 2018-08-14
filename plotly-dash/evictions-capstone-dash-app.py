@@ -20,7 +20,9 @@ from IPython.display import display, HTML
 app = dash.Dash()
 #server = app.server
 
-'''####### READ AND PRE-PROCESS DATA ###################'''
+'''##################################################
+####---- READ AND PRE-PROCESS DATA --------------------#
+####################################################'''
 
 counties_evicts_df = pd.read_csv('../data/counties.csv')
 counties_evicts_df.rename(columns = {'low-flag': 'imputed',
@@ -28,10 +30,9 @@ counties_evicts_df.rename(columns = {'low-flag': 'imputed',
                                     'subbed': 'low-flag'}, inplace = True)
 main_df = pd.read_csv('../data/all.csv', nrows = 17)
 county_correlations_df = pd.read_csv('../data/county_correlations.csv')
-#YEARS = [sorted(set(counties_evicts_df.year))]
-#######
 
-#--- County Boxblot Traces
+
+'''###--- Add County Boxblot Time-Series Traces ----------------------'''
 poverty_trace = go.Box(
     y = counties_evicts_df['poverty-rate'],
     x = counties_evicts_df.year,
@@ -65,14 +66,14 @@ eviction_state_trace = go.Scatter(
     line = dict(color = 'red', dash = 'dash', width = 1)
 	#visible = 'legendonly',
 )
-filing_trace = go.Box(
+'''filing_trace = go.Box(
     y = counties_evicts_df['eviction-filing-rate'],
     x = counties_evicts_df.year,
     name = 'County Filing Rates ',
     opacity = 0.5,
     marker = dict(color = 'orange', opacity = 0.5, symbol = 'square'),
 	visible = 'legendonly',
-)
+) # the eviction-filing-rate traces (the % of renter occupied households that received an eviction filing in court but not necessarily an eviction) is currently not being used in the app.
 filing_state_trace = go.Scatter(
     x = main_df[main_df.name == 'Tennessee'].year,
     y = main_df[main_df.name == 'Tennessee']['eviction-filing-rate'],
@@ -82,7 +83,7 @@ filing_state_trace = go.Scatter(
         width = 1
     ),
 	#visible = 'legendonly',
-)
+) # the eviction-filing-rate traces (the % of renter occupied households that received an eviction filing in court but not necessarily an eviction) is currently not being used in the app.
 #---- Davidson Traces
 davidsonPovertyTrace = go.Scatter(
     x = counties_evicts_df[counties_evicts_df.name == 'Davidson County'].year,
@@ -110,11 +111,12 @@ davidsonEvicFilingRateTrace = go.Scatter(
     line = dict(
         color = 'orange',
         width = 2)
-)
+)'''
 timeSeriesData = [poverty_state_trace, eviction_state_trace, #filing_state_trace,
 					poverty_trace,  eviction_trace, #filing_trace,
 					#davidsonPovertyTrace, davidsonEvicRateTrace, davidsonEvicFilingRateTrace,
 					]
+'''###--- add each county poverty and eviction rates traces in a loop'''
 for cnty in counties_evicts_df.name.unique():
     cnty_df = counties_evicts_df[counties_evicts_df.name == cnty]
     timeSeriesData.append(go.Scatter(
@@ -157,7 +159,7 @@ timeSeriesLayout = dict(title = 'Evictions & Poverty Time Series',
                         plot_bgcolor = '#F4F4F8',
 						)
 
-######----- Linear Regression Scatter Plot Traces -------
+'''###----- Add Scatter Plot with Linear Regression Traces -------'''
 #----- Poverty v Evictions
 povertyEvictionTrace = go.Scatter(
     x = counties_evicts_df['eviction-rate'],
@@ -188,6 +190,7 @@ povEvLineTrace = go.Scatter(
     width = 2),
     name = 'Eviction v Poverty Lin. Reg.'
 )
+
 #---- Filing v Poverty scatter plot
 filingEvictionTrace = go.Scatter(
     y = counties_evicts_df['poverty-rate'],
@@ -220,7 +223,9 @@ povFilingLineTrace = go.Scatter(
     visible = 'legendonly'
 )
 
-scatterData = [povertyEvictionTrace, povEvLineTrace, filingEvictionTrace, povFilingLineTrace]
+scatterData = [povertyEvictionTrace, povEvLineTrace#,
+                #filingEvictionTrace, povFilingLineTrace
+                ]
 scatterLayout = dict(title = 'Linear Regression (OLS) Color-Coded by % White',
              			xaxis = dict(title = 'Eviction/Filing Rate'),
              			yaxis = dict(title = 'Poverty Rate'),
@@ -230,7 +235,7 @@ scatterLayout = dict(title = 'Linear Regression (OLS) Color-Coded by % White',
 									  )
 						)
 
-############--- corrTimeSeriesData
+'''###--- Add Time-Series of the Correlation Coefficient ---###'''
 x = counties_evicts_df.year.unique()
 y = []
 for yr in x:
@@ -240,7 +245,7 @@ for yr in x:
             y = counties_evicts_df[counties_evicts_df.year == yr].dropna()['poverty-rate']
     )[0][1])
     #print(y)
-
+# add corrcoef timeseires trace
 corrTimeSeriesTrace = go.Scatter(
     x = x,
     y = y,
@@ -250,6 +255,7 @@ corrTimeSeriesTrace = go.Scatter(
         color = 'red',
         width = 2)
 )
+# add the r-squared trace
 determinationCoeffTimeSeriesTrace = go.Scatter(
     x = x,
     y = [r*r for r in y],
@@ -273,6 +279,7 @@ corrTimeSeriesLayout = dict(title = 'Correlation on a Scale From -1.0 to 1.0',
                         paper_bgcolor = '#F4F4F8',
                         plot_bgcolor = '#F4F4F8',
 						)
+'''###--- Add a Histogram of County Correlation Coefficients'''
 #######-------- corrHistogramData
 corrHistPovEvicTrace = go.Histogram(
     x = county_correlations_df['pov-evic-corr']
@@ -354,47 +361,46 @@ bsReplicatesLayout = go.Layout(title = '95% Confidence Interval for Corr. Coeff:
         #},
     ]
 )
-# ------------
+# - initialize some utility variables -------
 
 YEARS = [1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016]
-BINS = ['0-2', '2.1-4', '4.1-6', '6.1-8', '8.1-10', '10.1-12', '12.1-14', \
+'''BINS = ['0-2', '2.1-4', '4.1-6', '6.1-8', '8.1-10', '10.1-12', '12.1-14', \
 		'14.1-16', '16.1-18', '18.1-20', '20.1-22', '22.1-24',  '24.1-26', \
 		'26.1-28', '28.1-30', '>30']
 DEFAULT_COLORSCALE = ["#2a4858", "#265465", "#1e6172", "#106e7c", "#007b84", \
 	"#00898a", "#00968e", "#19a390", "#31b08f", "#4abd8c", "#64c988", \
 	"#80d482", "#9cdf7c", "#bae976", "#d9f271", "#fafa6e"]
-#DEFAULT_OPACITY = 0.4
+DEFAULT_OPACITY = 0.4
+DEFAULT_COLORSCALE = reversed(DEFAULT_COLORSCALE)
+#mapbox_access_token = "pk.eyJ1IjoiamFja3AiLCJhIjoidGpzN0lXVSJ9.7YK6eRwUNFwd3ODZff6JvA"
+'''
 cntyCensusYears = [y in [2000, 2005, 2010, 2011] for y in counties_evicts_df.year]
 BonafideRows = [f == 0 for f in counties_evicts_df['low-flag']]
 BonafideCensusRows = [census and bonafide for census, bonafide in zip(cntyCensusYears, BonafideRows)]
-DEFAULT_COLORSCALE = reversed(DEFAULT_COLORSCALE)
-#mapbox_access_token = "pk.eyJ1IjoiamFja3AiLCJhIjoidGpzN0lXVSJ9.7YK6eRwUNFwd3ODZff6JvA"
-
 '''
-~~~~~~~~~~~~~~~~
-~~ APP LAYOUT ~~
-~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~ APP LAYOUT ~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 '''
 app.layout = html.Div(children=[
 	html.Div([ #-- LEFT COLUMN
 		html.Div([
 			html.Div([
 				html.H1(children='Evictions & Poverty in Tennessee, 2000 - 2016',
-						style = {'fontWeight': 999, 'fontSize': 40}
+						#style = {'fontWeight': 500, 'fontSize': 30}
 				), # title
 			]),
-		html.Div([
+		html.Div([ # citation
 			html.P('This research uses data from The Eviction Lab at Princeton University, a project directed by Matthew Desmond and designed by Ashley Gromis, Lavar Edmonds, James Hendrickson, Katie Krywokulski, Lillian Leung, and Adam Porton. The Eviction Lab is funded by the JPB, Gates, and Ford Foundations as well as the Chan Zuckerberg Initiative. More information is found at evictionlab.org.',
 			style = {'fontSize': 10}
-			) # citation
-		], style={'margin':0}),
-		], style={'margin':0} ),
+			) ], style={'margin':0}),
+	     ], style={'margin':0}),
 		dcc.Graph(id = 'time-series',
 			figure = go.Figure(data = timeSeriesData, layout = timeSeriesLayout)
 		),
         html.Div([
         html.P("Pick an Individual Year To Highlight and Analyze Below."),
-        html.Div([
+        html.Div([ # year slider
             dcc.Slider(id = 'year-slider',
                         min=min(YEARS),
                         max= max(YEARS),
@@ -425,41 +431,47 @@ app.layout = html.Div(children=[
                 values = [],
                 labelStyle={'display': 'inline-block'},
             ),
-			], style={'display':'inline-block'}),
-        #html.H6('County-Wide Correlation Coefficient Time Series'),
+		], style={'display':'inline-block'}),
         dcc.Graph(id = 'corr-timeseries',
             figure = go.Figure(data = corrTimeSeriesData, layout = corrTimeSeriesLayout)
         ),
 	], className='seven columns', style={'margin':20}),
 
-	html.Div([ #--- RIGHT COLUMN
-    html.H4("Here's A Story For You")],
-    style={'display': 'inline-block', 'marginTop': 20}),
-    html.Div([
-    html.P('"Today, most poor renting families spend at least half of their income on housing costs,"', style = {'fontSize': 12}),
-    html.P('-- with one in four of those families spending over 70 percent of their income just on rent and utilities.',style = {'fontSize': 12}), html.P('--Incomes for Americans of modest means have flatlined while housing costs have soared.',style = {'fontSize': 12}), html.P('-- Only one in four families who qualifies for affordable housing programs gets any kind of help.',style = {'fontSize': 12}), html.P('-- a growing number are living one misstep or emergency away from eviction."*',style = {'fontSize': 12}),
-    html.H3('Time Series Insights'),
-    html.P('We start out with the simple change of eviction rates (Ratio of the number of renter-occupied households in an area that received an eviction judgement in which renters were ordered to leave) and poverty rates (percent of the population with income in the past 12 months below the poverty level) over time. Notice how the trends change around 2009; the peak of the housing crisis.',style = {'fontSize': 12}),
-    html.P('Click on a legend do display that time-series. Double click on a legend to hide all others. (Double clikc between legends to display everything!)',style = {'fontSize': 12}),
-    html.H3('Scatter Plot Insights'),
-    html.Br(),
-    dcc.Graph(id = 'corr-histogram',
-        figure = go.Figure(data = corrHistogramData, layout = corrHistogramLayout)
-    ),
-	html.P('Select County:(currently unused)', style={'display': 'inline-block'}),
-	dcc.Dropdown(id = 'county-dropdown',
-        options = [{'label':cnty, 'value':cnty} for cnty in counties_evicts_df.name.unique()],
-        value = None,
-	),
-    #html.Br(),
-    dcc.Graph(id = 'bootstrap-replicates-distribution',
-        figure = go.Figure(data = bsReplicatesData, layout = bsReplicatesLayout)
-    ),
-    html.P('* This research uses data from The Eviction Lab at Princeton University, a project directed by Matthew Desmond and designed by Ashley Gromis, Lavar Edmonds, James Hendrickson, Katie Krywokulski, Lillian Leung, and Adam Porton. The Eviction Lab is funded by the JPB, Gates, and Ford Foundations as well as the Chan Zuckerberg Initiative. More information is found at evictionlab.org., consulted, 07-24-2018, CST')
+    html.Div([# -- RIGHT COLUMN
+        html.Div([
+            html.H2("Here's A Story For You")
+        ], style={'display': 'inline-block', 'marginTop': 20}),
+
+        html.P('"Today, most poor renting families spend at least half of their income on housing costs,"', style = {'fontSize': 12}),
+        html.P('-- with one in four of those families spending over 70 percent of their income just on rent and utilities.',style = {'fontSize': 12}), html.P('--Incomes for Americans of modest means have flatlined while housing costs have soared.',style = {'fontSize': 12}), html.P('-- Only one in four families who qualifies for affordable housing programs gets any kind of help.',style = {'fontSize': 12}), html.P('-- a growing number are living one misstep or emergency away from eviction."*',style = {'fontSize': 12}),
+        html.H4('Time Series Insights'),
+        html.P('We start out with the simple change of eviction rates (Ratio of the number of renter-occupied households in an area that received an eviction judgement in which renters were ordered to leave) and poverty rates (percent of the population with income in the past 12 months below the poverty level) over time. Notice how the trends change around 2009; the peak of the housing crisis.',style = {'fontSize': 12}),
+        html.P('Click on a legend do display that time-series. Double click on a legend to hide all others. (Double clikc between legends to display everything!)',style = {'fontSize': 12}),
+        html.H4('Scatter Plot Insights'),
+        html.Br(),
+        dcc.Graph(id = 'corr-histogram',
+            figure = go.Figure(data = corrHistogramData, layout = corrHistogramLayout)
+        ),
+    	html.P('Select County:(currently unused)', style={'display': 'inline-block'}),
+    	dcc.Dropdown(id = 'county-dropdown',
+            options = [{'label':cnty, 'value':cnty} for cnty in counties_evicts_df.name.unique()],
+            value = None,
+    	),
+        #html.Br(),
+        dcc.Graph(id = 'bootstrap-replicates-distribution',
+            figure = go.Figure(data = bsReplicatesData, layout = bsReplicatesLayout)
+        ),
+        html.P('* This research uses data from The Eviction Lab at Princeton University, a project directed by Matthew Desmond and designed by Ashley Gromis, Lavar Edmonds, James Hendrickson, Katie Krywokulski, Lillian Leung, and Adam Porton. The Eviction Lab is funded by the JPB, Gates, and Ford Foundations as well as the Chan Zuckerberg Initiative. More information is found at evictionlab.org., consulted, 07-24-2018, CST')
 	], className='five columns', style={'margin':0}),
 ])
+## Stlye Sheet
 app.css.append_css({'external_url': 'https://codepen.io/plotly/pen/EQZeaW.css'}),
 
+'''
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~ app interactivity/callbacks ~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'''
 @app.callback(
     dash.dependencies.Output('scatter-with-slider', 'figure'),
     [dash.dependencies.Input('year-slider', 'value'),
@@ -469,7 +481,7 @@ app.css.append_css({'external_url': 'https://codepen.io/plotly/pen/EQZeaW.css'})
     ])
 def update_scatter(selected_year, checklist_values, checked_year_values, selected_county):
     #print('selected_year', selected_year)
-    print('============>>>>>>>>sel cnty', selected_county)
+    #print('============>>>>>>>>sel cnty', selected_county)
     #------ handle filters
     fltr = [str(y) in checked_year_values for y in counties_evicts_df.year]
     if 'low_flag_filter' in checklist_values:
@@ -478,13 +490,17 @@ def update_scatter(selected_year, checklist_values, checked_year_values, selecte
     # filter by county
     if selected_county != None:
         filtered_df = filtered_df[[cnty in selected_county for cnty in filtered_df.name]]
-    #------ add checked year scatter and line
+    #------ add checked year(s) scatter and line
     traces=[]
     # add the checked scatter
     traces.append(go.Scatter(
         x = filtered_df['eviction-rate'],
         y = filtered_df['poverty-rate'],
-        text = filtered_df['name'],
+        text = filtered_df['name']
+        #zip(filtered_df['name'], filtered_df['year'])
+        #filtered_df[['name', 'year']] # 'DataFrame' is not JSON serializable
+        #str(filtered_df['name']) #+ str(filtered_df['year']) #returns enormous string of series
+        ,
         mode = 'markers',
         opacity = '0.4',
         marker = {'symbol': 'circle',#'circle-open',
