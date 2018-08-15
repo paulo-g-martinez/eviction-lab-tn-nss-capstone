@@ -382,13 +382,41 @@ BonafideCensusRows = [census and bonafide for census, bonafide in zip(cntyCensus
 ~~~~~~~~~~ APP LAYOUT ~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 '''
+
+
 app.layout = html.Div(children=[
-	html.Div([ #-- LEFT COLUMN
+    html.H1(children = 'Evictions & Poverty in Tennessee, 2000 - 2016',
+        style = {'margin': 20}
+    ),
+    html.Br(),
+    html.Div(
+        children = [
+        html.Iframe(# inset of evictionlab.org map page
+                    **{ #kwargs passed as a dictionary
+                    'id':'eviction-lab-iframe',
+                    'title':'Eviction Lab iframe',
+                    'width': '97%',
+                    'height': 700,
+                    'src': 'https://evictionlab.org/map/#/2016?geography=counties&bounds=-90.752,31.558,-81.512,38.125&type=er&choropleth=pr&locations=47,-86.074,35.831%2B47037,-86.785,36.187%2B47157,-89.897,35.184'
+                    #'src': 'https://evictionlab.org/map/#/2016?geography=counties&bounds=-91.899,33.3,-81.422,37.673&type=er&choropleth=pr&locations=47,-86.074,35.831'
+                    },
+                    style = {'margin': 20, 'margin-right': 0}),
+                    "     The Eviction Lab's Own Website and Interactive Map: (All content © 2018 Eviction Lab. All rights reserved)",
+                    ], className = 'nine columns', style = {'margin': 0, 'background-color': '#d7e3f4b3' #light purple #'background-color': '#e24000' #el orange
+                    }),
+        html.H2("Here's the Story:", className = 'three columns'),
+        html.H5('* Today, most poor renting families spend at least half of their income on housing costs', className = 'three columns'),
+        html.H5('* One in four of those families spending over 70 percent of their income just on rent and utilities', className = 'three columns'),
+        html.H5('* Incomes for Americans of modest means have flatlined while housing costs have soared', className = 'three columns'),
+        html.H5('* Only one in four families who qualifies for affordable housing programs gets any kind of help', className = 'three columns'),
+        html.H5('* A growing number [of poor renting families] are living one misstep or emergency away from eviction', className = 'three columns'), #style = {'fontSize': 12, 'margin' : 5}),
+        html.P('* This research uses data from The Eviction Lab at Princeton University, a project directed by Matthew Desmond and designed by Ashley Gromis, Lavar Edmonds, James Hendrickson, Katie Krywokulski, Lillian Leung, and Adam Porton. The Eviction Lab is funded by the JPB, Gates, and Ford Foundations as well as the Chan Zuckerberg Initiative. More information is found at evictionlab.org.', style = {'fontSize': 11}, className = 'three columns'),
+    html.Div([ #-- LEFT COLUMN
 		html.Div([
 			html.Div([
 				html.H1(children='Evictions & Poverty in Tennessee, 2000 - 2016',
 						#style = {'fontWeight': 500, 'fontSize': 30}
-				), # title
+				)
 			]),
 		html.Div([ # citation
 			html.P('This research uses data from The Eviction Lab at Princeton University, a project directed by Matthew Desmond and designed by Ashley Gromis, Lavar Edmonds, James Hendrickson, Katie Krywokulski, Lillian Leung, and Adam Porton. The Eviction Lab is funded by the JPB, Gates, and Ford Foundations as well as the Chan Zuckerberg Initiative. More information is found at evictionlab.org.',
@@ -436,7 +464,6 @@ app.layout = html.Div(children=[
             figure = go.Figure(data = corrTimeSeriesData, layout = corrTimeSeriesLayout)
         ),
 	], className='seven columns', style={'margin':20}),
-
     html.Div([# -- RIGHT COLUMN
         html.Div([
             html.H2("Here's A Story For You")
