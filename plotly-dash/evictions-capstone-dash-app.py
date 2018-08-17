@@ -20,9 +20,11 @@ from IPython.display import display, HTML
 app = dash.Dash()
 #server = app.server
 
-'''##################################################
-####---- READ AND PRE-PROCESS DATA --------------------#
-####################################################'''
+'''
+####################################################
+####---- READ AND PRE-PROCESS DATA ----------------#
+####################################################
+'''
 
 counties_evicts_df = pd.read_csv('../data/counties.csv')
 counties_evicts_df.rename(columns = {'low-flag': 'imputed',
@@ -37,10 +39,10 @@ poverty_trace = go.Box(
     y = counties_evicts_df['poverty-rate'],
     x = counties_evicts_df.year,
     #hover = ('name'), # hover is not allowed in boxplot
-    name = 'TN Poverty Rates',
+    name = 'TN Poverty Rate Distributions',
     visible = 'legendonly',
     opacity = 0.5,
-    marker = dict(color = 'black', opacity = 0.5, symbol = 'square')
+    marker = dict(color = '#434878', opacity = 0.5, symbol = 'square')
 )
 poverty_state_trace = go.Scatter(
     x = main_df[main_df.name == 'Tennessee'].year,
@@ -48,22 +50,22 @@ poverty_state_trace = go.Scatter(
     name = 'Tn Mean Poverty Rate  ',
 	#visible = 'legendonly',
     line = dict(
-    color = 'black', dash = 'dash',
+    color = '#434878', dash = 'dash',
     width = 1)
 )
 eviction_trace = go.Box(
     y = counties_evicts_df['eviction-rate'],
     x = counties_evicts_df.year,
-    name = 'TN Eviction Rates',
+    name = 'TN Eviction Rate Distributions',
     opacity = 0.5,
-    marker = dict(color = 'red', opacity = 0.5, symbol = 'square'),
+    marker = dict(color = '#e24000', opacity = 0.75, symbol = 'square'),
 	visible = 'legendonly',
 )
 eviction_state_trace = go.Scatter(
     x = main_df[main_df.name == 'Tennessee'].year,
     y = main_df[main_df.name == 'Tennessee']['eviction-rate'],
     name = 'Tn Mean Eviction Rate   ',
-    line = dict(color = 'red', dash = 'dash', width = 1)
+    line = dict(color = '#e24000', dash = 'dash', width = 1)
 	#visible = 'legendonly',
 )
 '''filing_trace = go.Box(
@@ -91,7 +93,7 @@ davidsonPovertyTrace = go.Scatter(
     name = 'Davidson Pvty % ',
 	visible = 'legendonly',
     line = dict(
-    color = 'black',
+    color = '#434878',
     width = 2)
 )
 davidsonEvicRateTrace = go.Scatter(
@@ -100,7 +102,7 @@ davidsonEvicRateTrace = go.Scatter(
     name = 'Davidson Evic % ',
 	visible = 'legendonly',
     line = dict(
-    color = 'red',
+    color = '#e24000',
     width = 2)
 )
 davidsonEvicFilingRateTrace = go.Scatter(
@@ -124,14 +126,14 @@ for cnty in counties_evicts_df.name.unique():
         y = cnty_df['poverty-rate'],
         name = cnty,
         visible = 'legendonly',
-        line = {'color': 'black', 'width' : '2'}
+        line = {'color': '#434878', 'width' : '2'}
     ))
     timeSeriesData.append(go.Scatter(
         x = cnty_df.year,
         y = cnty_df['eviction-rate'],
         name = cnty,
         visible = 'legendonly',
-        line = {'color': 'red', 'width' : 2}
+        line = {'color': '#e24000', 'width' : 2}
     ))
     cntyLow_df = cnty_df[cnty_df['low-flag'] == 1]
     timeSeriesData.append(go.Scatter(
@@ -252,7 +254,7 @@ corrTimeSeriesTrace = go.Scatter(
     name = 'Pearson Corr. Coeff.',
 	#visible = 'legendonly',
     line = dict(
-        color = 'red',
+        color = '#e24000',
         width = 2)
 )
 # add the r-squared trace
@@ -282,7 +284,9 @@ corrTimeSeriesLayout = dict(title = 'Correlation on a Scale From -1.0 to 1.0',
 '''###--- Add a Histogram of County Correlation Coefficients'''
 #######-------- corrHistogramData
 corrHistPovEvicTrace = go.Histogram(
-    x = county_correlations_df['pov-evic-corr']
+    x = county_correlations_df['pov-evic-corr'],
+    marker = {'color':'#434878'},
+    opacity = .5
 )
 corrHistogramData = [corrHistPovEvicTrace]
 corrHistogramLayout = go.Layout(barmode = 'stack')
@@ -338,7 +342,7 @@ bsReplicatesLayout = go.Layout(title = '95% Confidence Interval for Corr. Coeff:
             'x1': -0.21,
             'y1': 0.9,
             'line': {
-                'color': 'red',
+                'color': '#e24000',
                 'width': 2,
             },
         },
@@ -351,10 +355,10 @@ bsReplicatesLayout = go.Layout(title = '95% Confidence Interval for Corr. Coeff:
             'x1': np.percentile(bs_replicates, 97.5),
             'y1': 0.9,
             'line': {
-                'color': 'red',
+                'color': '#e24000',
                 'width': .5
             },
-            'fillcolor': 'red',
+            'fillcolor': '#e24000',
             'opacity': '.1',
             }
 
@@ -374,6 +378,9 @@ DEFAULT_OPACITY = 0.4
 DEFAULT_COLORSCALE = reversed(DEFAULT_COLORSCALE)
 #mapbox_access_token = "pk.eyJ1IjoiamFja3AiLCJhIjoidGpzN0lXVSJ9.7YK6eRwUNFwd3ODZff6JvA"
 '''
+el_orange = '#e24000'
+el_purple = '#434878'
+el_green = '#2c897f'
 cntyCensusYears = [y in [2000, 2005, 2010, 2011] for y in counties_evicts_df.year]
 BonafideRows = [f == 0 for f in counties_evicts_df['low-flag']]
 BonafideCensusRows = [census and bonafide for census, bonafide in zip(cntyCensusYears, BonafideRows)]
@@ -386,10 +393,18 @@ BonafideCensusRows = [census and bonafide for census, bonafide in zip(cntyCensus
 
 app.layout = html.Div(children=[
     html.H1(children = 'Evictions & Poverty in Tennessee, 2000 - 2016',
-        style = {'margin': 20}
+        style = {'margin': 20, 'marginTop': 10, 'color': '#e24000'}
     ),
-    html.Br(),
-    html.Div(
+    html.H4("Here's the Story:", style = {'margin': 20, 'color': "#434878"}),#, className = 'three columns'),
+    html.H5('* "Today, most poor renting families spend at least half of their income on housing costs"', style = {'margin': 20}),#, className = 'three columns'),
+    html.H5('* "One in four of those families spending over 70 percent of their income just on rent and utilities"', style = {'margin': 20}),#, className = 'three columns'),
+    html.H5('* "Incomes for Americans of modest means have flatlined while housing costs have soared"', style = {'margin': 20}),#, className = 'three columns'),
+    html.H5('* "Only one in four families who qualifies for affordable housing programs gets any kind of help"', style = {'margin': 20}),#, className = 'three columns'),
+    html.H5('* "Almost everywhere in the United States, evictions take place in civil court, where renters have no right to an attorney"', style = {'margin': 20}),
+    html.H5('* "A growing number [of poor renting families] are living one misstep or emergency away from eviction"', style = {'margin': 20}),#, className = 'three columns'), #style = {'fontSize': 12, 'margin' : 5}),
+    html.P('* This research uses data from The Eviction Lab at Princeton University, a project directed by Matthew Desmond and designed by Ashley Gromis, Lavar Edmonds, James Hendrickson, Katie Krywokulski, Lillian Leung, and Adam Porton. The Eviction Lab is funded by the JPB, Gates, and Ford Foundations as well as the Chan Zuckerberg Initiative. More information is found at evictionlab.org.', style = {'margin': 20, 'fontSize': 11}),#, style = {'fontSize': 11}, className = 'three columns'),
+    #html.Br(),
+    html.Div( #second row, as it were
         children = [
         html.Iframe(# inset of evictionlab.org map page
                     **{ #kwargs passed as a dictionary
@@ -398,36 +413,28 @@ app.layout = html.Div(children=[
                     'width': '97%',
                     'height': 700,
                     'src': 'https://evictionlab.org/map/#/2016?geography=counties&bounds=-90.752,31.558,-81.512,38.125&type=er&choropleth=pr&locations=47,-86.074,35.831%2B47037,-86.785,36.187%2B47157,-89.897,35.184'
-                    #'src': 'https://evictionlab.org/map/#/2016?geography=counties&bounds=-91.899,33.3,-81.422,37.673&type=er&choropleth=pr&locations=47,-86.074,35.831'
                     },
-                    style = {'margin': 20, 'margin-right': 0}),
-                    "     The Eviction Lab's Own Website and Interactive Map: (All content © 2018 Eviction Lab. All rights reserved)",
-                    ], className = 'nine columns', style = {'margin': 0, 'background-color': '#d7e3f4b3' #light purple #'background-color': '#e24000' #el orange
-                    }),
-        html.H2("Here's the Story:", className = 'three columns'),
-        html.H5('* Today, most poor renting families spend at least half of their income on housing costs', className = 'three columns'),
-        html.H5('* One in four of those families spending over 70 percent of their income just on rent and utilities', className = 'three columns'),
-        html.H5('* Incomes for Americans of modest means have flatlined while housing costs have soared', className = 'three columns'),
-        html.H5('* Only one in four families who qualifies for affordable housing programs gets any kind of help', className = 'three columns'),
-        html.H5('* A growing number [of poor renting families] are living one misstep or emergency away from eviction', className = 'three columns'), #style = {'fontSize': 12, 'margin' : 5}),
-        html.P('* This research uses data from The Eviction Lab at Princeton University, a project directed by Matthew Desmond and designed by Ashley Gromis, Lavar Edmonds, James Hendrickson, Katie Krywokulski, Lillian Leung, and Adam Porton. The Eviction Lab is funded by the JPB, Gates, and Ford Foundations as well as the Chan Zuckerberg Initiative. More information is found at evictionlab.org.', style = {'fontSize': 11}, className = 'three columns'),
+                    style = {'margin': 20, 'marginRight': 0}),
+        html.P("The Eviction Lab's Own Website and Interactive Map: (All content © 2018 Eviction Lab. All rights reserved)", style = {'margin': 5}),
+        ], className = 'nine columns', style = {'marginLeft': 0, 'background-color': '#d7e3f4b3'}), #light purple #'background-color': '#e24000' #el orange
+        # embeddable npr iframe with the desmond gross fresh air interview, #<iframe src="https://www.npr.org/player/embed/601783346/601892980" width="100%" height="290" frameborder="0" scrolling="no" title="NPR embedded audio player"></iframe>
+        html.H2("What the Map Shows:", className = 'three columns', style = {'marginLeft': 20}),#, style = {'color': '#2c897f'}), #el green
+        html.H5("Counties are colored in by poverty-rate (darker means poorer)", className = 'three columns', style = {'color': '#434878', 'marginLeft': 20}),
+        html.P(html.I('Poverty-rate: percent of population living in poverty; recorded during census years only.', className = 'three columns', style = {'marginLeft': 35})),
+        html.H5('Red bubbles are sized by eviction-rate (larger means higher eviction rate)', className = 'three columns', style = {'color': '#e24000', 'marginLeft': 20}),
+        html.P(html.I('Eviction-rate: percent of the renting population that has received an eviction ruling in court; recorded annualy.', className = 'three columns', style = {'marginLeft': 35})),
+        html.P("The Eviction Lab's map is highly interactive and allows you to explore multiple aspects of thier data. But since it combines eviction data, which is collected anually, with census data, which was only collected in 2000, 2005, 2010, & 2011, it can be hard to discern exactly what the relationship between evictions and poverty has been. (I.e. if you arrow through the year slider from 2000 to 2016 you'll notice that the poverty-rate data only updates during census years. This could lead to the misleading perception that when eviction-rates change poverty-rates do not.)", className = 'three columns', style = {'marginLeft': 20}),# For simplicity's sake the rest of this analysis will focus primarily on the relationship between eviction-rates and poverty-rates.", className = 'three columns'),
+        #html.H5('* Only one in four families who qualifies for affordable housing programs gets any kind of help', className = 'three columns'),
+        #html.H5('* A growing number [of poor renting families] are living one misstep or emergency away from eviction', className = 'three columns'), #style = {'fontSize': 12, 'margin' : 5}),
+        #html.P('* This research uses data from The Eviction Lab at Princeton University, a project directed by Matthew Desmond and designed by Ashley Gromis, Lavar Edmonds, James Hendrickson, Katie Krywokulski, Lillian Leung, and Adam Porton. The Eviction Lab is funded by the JPB, Gates, and Ford Foundations as well as the Chan Zuckerberg Initiative. More information is found at evictionlab.org.', style = {'fontSize': 11}, className = 'three columns'),
     html.Div([ #-- LEFT COLUMN
-		html.Div([
-			html.Div([
-				html.H1(children='Evictions & Poverty in Tennessee, 2000 - 2016',
-						#style = {'fontWeight': 500, 'fontSize': 30}
-				)
-			]),
-		html.Div([ # citation
-			html.P('This research uses data from The Eviction Lab at Princeton University, a project directed by Matthew Desmond and designed by Ashley Gromis, Lavar Edmonds, James Hendrickson, Katie Krywokulski, Lillian Leung, and Adam Porton. The Eviction Lab is funded by the JPB, Gates, and Ford Foundations as well as the Chan Zuckerberg Initiative. More information is found at evictionlab.org.',
-			style = {'fontSize': 10}
-			) ], style={'margin':0}),
-	     ], style={'margin':0}),
 		dcc.Graph(id = 'time-series',
 			figure = go.Figure(data = timeSeriesData, layout = timeSeriesLayout)
 		),
+        html.H4("Explore the Correlation"),
+        html.P('The scatter plot below initially seems to suggest that as the percentage of evicted renters goes up in a county, the percentage of people in poverty in that county goes down.'),
         html.Div([
-        html.P("Pick an Individual Year To Highlight and Analyze Below."),
+        html.P(html.I("- Click through individual years to see how the correlation has changed over the years."), style = {'marginLeft': 20}),
         html.Div([ # year slider
             dcc.Slider(id = 'year-slider',
                         min=min(YEARS),
@@ -435,10 +442,11 @@ app.layout = html.Div(children=[
                         value= min(YEARS),
                         marks = {str(year): str(year) for year in YEARS},
                             ),
-            ], style={'width':700, 'display':'inline-block', 'marginBottom':12
+            ], style={'width':650, 'display':'inline-block', 'marginBottom':25, 'marginLeft': 20,
                 }),
+        html.P("In fact, the correlation seems to get weaker and weaker as we approach the peak of the housing crisis around 2009."),
         dcc.Graph(id = 'scatter-with-slider'),
-            ], style = {'marginBottom': 0}),
+            ], style = {'marginBottom': 0, 'marginTop': 0}),
         dcc.Checklist( id = 'checked-years',
             options = [{'label': str(yr), 'value': str(yr)} for yr in YEARS],
             values = [str(y) for y in YEARS],
@@ -446,14 +454,17 @@ app.layout = html.Div(children=[
                             'margin': 1,
                             #'marginTop': 0, 'rotation':45
             }),
-        html.Br(),
+        #html.Br(),
         html.Div([
+            html.H4('Cutting Through the Noise'),
+            #html.P(html.I('Check the box to filter down to data from census years only.'), style = {'color': el_green}),
 			dcc.Checklist(id='census-checkbox',
-			    options=[{'label': 'Census Years Filter: (2000, 2005, 2010, 2011). Poverty Rates were only measured during census years.', 'value': 'census_filter'}
+			    options=[{'label': 'Check the box to filter down to census-years only: (2000, 2005, 2010, 2011). Poverty Rates were only measured during census years.', 'value': 'census_filter'}
                 ],
 				values=[],
-				labelStyle={'display': 'inline-block'},
+				labelStyle={'display': 'inline-block', 'color': el_green},
 			),
+            html.P(html.I("- Otherwise, during non-census years, it will seem like changes in eviction-rates are met with no change whatsoever in poverty-rates."), style = {'marginLeft': 20}),
             dcc.Checklist(id = 'low-checkbox',
                 options = [{'label': 'Low-Flag Filter. Some eviction values were flagged as under-reported by The Eviction Lab.', 'value': 'low_flag_filter'}],
                 values = [],
@@ -466,20 +477,29 @@ app.layout = html.Div(children=[
 	], className='seven columns', style={'margin':20}),
     html.Div([# -- RIGHT COLUMN
         html.Div([
-            html.H2("Here's A Story For You")
-        ], style={'display': 'inline-block', 'marginTop': 20}),
-
-        html.P('"Today, most poor renting families spend at least half of their income on housing costs,"', style = {'fontSize': 12}),
-        html.P('-- with one in four of those families spending over 70 percent of their income just on rent and utilities.',style = {'fontSize': 12}), html.P('--Incomes for Americans of modest means have flatlined while housing costs have soared.',style = {'fontSize': 12}), html.P('-- Only one in four families who qualifies for affordable housing programs gets any kind of help.',style = {'fontSize': 12}), html.P('-- a growing number are living one misstep or emergency away from eviction."*',style = {'fontSize': 12}),
-        html.H4('Time Series Insights'),
-        html.P('We start out with the simple change of eviction rates (Ratio of the number of renter-occupied households in an area that received an eviction judgement in which renters were ordered to leave) and poverty rates (percent of the population with income in the past 12 months below the poverty level) over time. Notice how the trends change around 2009; the peak of the housing crisis.',style = {'fontSize': 12}),
-        html.P('Click on a legend do display that time-series. Double click on a legend to hide all others. (Double clikc between legends to display everything!)',style = {'fontSize': 12}),
-        html.H4('Scatter Plot Insights'),
+            html.Br(),
+            html.H4("How Eviction and Poverty Rates Have Changed Over Time")
+        ], #style={'display': 'inline-block', 'marginTop': 20}
+        ),
+        html.P(html.I("- The dotted lines show Tennessee's average poverty rate and eviction rates over the years, but averages can be distorted by a even a few outliers."), style = {'marginLeft': 25}),
+        html.H6(html.I("- For better a better idea of the overall distribution of poverty and eviction rates for TN counties click on the third and fourth items on the legend. They show the box-plot distributions for all of TN counties over the years."),style = {'marginLeft': 25, 'color': el_green}),
+        html.P(html.I("- You can also scroll through the legend and click on the county you want to inspect individually."),style = {'marginLeft': 25}),
+        html.P([
+            "Notice that some counties have likely under-reported their eviction rates during some years. In fact, the entire state of TN has been flagged as under-reporting it's eviction rates because over 25% of TN counties under-report their own eviction rates.  ",
+            html.A("See page 39 of the Eviction Lab's Methodology report pdf for the technical methods used for this determination.", href = 'https://evictionlab.org/docs/Eviction%20Lab%20Methodology%20Report.pdf', target = "_blank", style = {'fontSize': 11, 'display': 'inline-block'})
+            ], style = {'color': el_orange}),
         html.Br(),
+        html.Br(),
+        html.H4('County Trends vs State Trends'),
+        html.P('''TN's state-level overall correlation is weak, but there are counties with very strong "downwards" correlations (less than -.70) that, when taken as an average, are cancelling out those counties with very strong "updwards" correlation (greater than .70).'''),
+        #html.P(html.I("The histogram below initally shows a 'bimodal distribution' where most counties seem to have a weak (strength less than .50) correlation between their eviction and poverty rates."), style = {'marginLeft': 20}),
+        #html.P(""),
         dcc.Graph(id = 'corr-histogram',
             figure = go.Figure(data = corrHistogramData, layout = corrHistogramLayout)
         ),
-    	html.P('Select County:(currently unused)', style={'display': 'inline-block'}),
+        html.P(html.I("Hover over the Histogram to see a county's rates"), style = {'color': el_green, 'marginLeft': 20}),
+        html.H5('When we filter down to census-year data we can see that, in fact, most counties have a significant correlation between eviction and poverty rates. But the effect is polarized; In some counties eviction and poverty rates seem to, like magnets, repel eachother, and in others they seem to attract eachother.', style = {'color': el_orange}),
+        html.P("Select a county to analyze its individual correlation data", style={'display': 'inline-block', 'color': el_green}),
     	dcc.Dropdown(id = 'county-dropdown',
             options = [{'label':cnty, 'value':cnty} for cnty in counties_evicts_df.name.unique()],
             value = None,
@@ -554,9 +574,10 @@ def update_scatter(selected_year, checklist_values, checked_year_values, selecte
             y = line,
             #mode = 'lines',
             line = dict(
-                color = 'red', #dash = 'dot', #opacity = 0.3,
+                color = '#e24000', #dash = 'dot', #opacity = 0.3,
                 width = 3),
-                name = 'Selected Years Lin. Reg.'
+                name = 'Selected Years Lin. Reg.',
+                opacity = .5,
                 #name = 'Lin. Reg. for: {}'.format(checked_year_values)
             ))
     #------ add slider year scatter and line
@@ -655,7 +676,7 @@ def update_corrTimeSeries(selected_year, checklist_values, checked_year_values):
             name = 'Pearson Corr. Coeff.',
         	#visible = 'legendonly',
             line = dict(
-                color = 'red',
+                color = '#e24000',
                 width = 2)
         )
     ),
@@ -703,26 +724,42 @@ def update_histogram(checklist_values, checked_year_values):
     #------ add trace for each county
     traces = []
     for cnty in sorted(set(filtered_df.name)):
-        if not pd.isnull(np.corrcoef(
-                x = filtered_df[filtered_df.name == cnty].dropna()['eviction-rate'],
-                y = filtered_df[filtered_df.name == cnty].dropna()['poverty-rate']
-            )[0][1]):
+        cc = round(
+                np.corrcoef(
+                        x = filtered_df[filtered_df.name == cnty].dropna()['eviction-rate'],
+                        y = filtered_df[filtered_df.name == cnty].dropna()['poverty-rate']
+                    )[0][1],
+                3)
+        if not pd.isnull(cc):
             traces.append(go.Histogram(
-                                x = [round(
-                                        np.corrcoef(
-                                                x = filtered_df[filtered_df.name == cnty].dropna()['eviction-rate'],
-                                                y = filtered_df[filtered_df.name == cnty].dropna()['poverty-rate']
-                                            )[0][1],
-                                        3)
-                                    ],
-                                name = cnty,
-                                #text = str(np.median(filtered_df['pct-white'])),
-                                #hoverinfo = 'text',
-                                #marker = {'color' : filtered_df[filtered_df.name == cnty]['pct-white'].dropna().mean()},
-                                #marker = {'color': np.mean([p for p in filtered_df[filtered_df.name == cnty]['pct-white'] if not pd.isnull(p)])},
-                                #marker = {'color': x/1},
-                                #marker = {'colorscale': 'Viridis'},
-                                opacity = .7,
+                                x = [cc],
+                                name = cnty.split(' ')[0],
+                                #name = str(filtered_df[filtered_df.name == cnty]['poverty-rate'].dropna().mean()),
+                                text =  cnty.split(' ')[0] + ': ' +
+                                        'corr. ' + str(cc) + ',\n' +
+                                        ' mdn evic %: ' + str(round(filtered_df[filtered_df.name == cnty]['eviction-rate'].dropna().median(), 3)) + ',\n' +
+                                        ' mdn pvty %: ' + str(round(filtered_df[filtered_df.name == cnty]['poverty-rate'].dropna().median(), 3)) + ',\n'
+                                ,
+                                hoverinfo = 'text',
+                                hoverlabel = {'bgcolor': '#e24000'},
+                                marker = {'color' : '#434878', 'line':{'width': .1, 'color': 'white'}},
+                                #marker = {
+                                #    'color': 'red',
+                                #    'line': {
+                                #        'color': filtered_df[filtered_df.name == cnty]['poverty-rate'].dropna().mean(),
+                                #        'color': '#434878',
+                                #        #'color': '#F4F4F8',
+                                #        #'cmin': 0,
+                                #        #'cmax': 30, #max poverty rate is 30%
+                                #        #'colorscale': 'Purples',
+                                #        #'colorscale': 'Viridis',
+                                #        #'reversescale': True,
+                                #        'width': 10 - filtered_df[filtered_df.name == cnty]['eviction-rate'].dropna().mean()
+                                #    }
+                                #},
+                                #opacity = 1,
+                                opacity = filtered_df[filtered_df.name == cnty]['poverty-rate'].dropna().mean()/30, #scaled over 30 since that is the max saturation value on eviction lab's own choropleth
+                                #opacity = filtered_df[filtered_df.name == cnty]['pct-white'].dropna().mean()/100,
                                 #cumulative = True,
                                 #autobinx = False,
                                 xbins = {'start': -1, 'end': 1, 'size' : .1}
@@ -740,7 +777,9 @@ def update_histogram(checklist_values, checked_year_values):
             #legend = {'x': -.1, 'y': 1.3, 'orientation': 'h'},
             #cumulative = True,
             #colorbar = True
-            barmode = 'stack'
+            barmode = 'stack',
+            #bargap = 0.8,
+            #bargroupgap = 0.5,
 
         )
     }
@@ -822,7 +861,7 @@ def update_confidence_interval(checklist_values, checked_year_values, selected_c
                                                 )[0][1], 2),
                         'y1': 0.9,
                         'line': {
-                            'color': 'red',
+                            'color': '#e24000',
                             'width': 2,
                             },
                         },
@@ -835,10 +874,10 @@ def update_confidence_interval(checklist_values, checked_year_values, selected_c
                         'x1': np.percentile(xbn, 97.5),
                         'y1': 0.9,
                         'line': {
-                            'color': 'red',
+                            'color': '#e24000',
                             'width': .5
                             },
-                            'fillcolor': 'red',
+                            'fillcolor': '#e24000',
                             'opacity': '.1',
                             }]
             )
