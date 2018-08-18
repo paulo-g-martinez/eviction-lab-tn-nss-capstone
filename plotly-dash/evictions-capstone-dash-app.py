@@ -15,6 +15,7 @@ from scipy import stats
 from plotly.offline import init_notebook_mode, iplot
 from IPython.display import display, HTML
 #init_notebook_mode(connected = True)
+import colorlover as cl
 
 #app = dash.Dash(__name__)
 app = dash.Dash()
@@ -33,6 +34,26 @@ counties_evicts_df.rename(columns = {'low-flag': 'imputed',
 main_df = pd.read_csv('../data/all.csv', nrows = 17)
 county_correlations_df = pd.read_csv('../data/county_correlations.csv')
 
+# - initialize some utility variables -------
+
+YEARS = [1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016]
+'''BINS = ['0-2', '2.1-4', '4.1-6', '6.1-8', '8.1-10', '10.1-12', '12.1-14', \
+		'14.1-16', '16.1-18', '18.1-20', '20.1-22', '22.1-24',  '24.1-26', \
+		'26.1-28', '28.1-30', '>30']
+DEFAULT_COLORSCALE = ["#2a4858", "#265465", "#1e6172", "#106e7c", "#007b84", \
+	"#00898a", "#00968e", "#19a390", "#31b08f", "#4abd8c", "#64c988", \
+	"#80d482", "#9cdf7c", "#bae976", "#d9f271", "#fafa6e"]
+DEFAULT_OPACITY = 0.4
+DEFAULT_COLORSCALE = reversed(DEFAULT_COLORSCALE)
+#mapbox_access_token = "pk.eyJ1IjoiamFja3AiLCJhIjoidGpzN0lXVSJ9.7YK6eRwUNFwd3ODZff6JvA"
+'''
+el_orange = '#e24000'
+el_purple = '#434878'
+el_green = '#2c897f'
+#Purples = cl.scales['30']['seq']['Purples']
+cntyCensusYears = [y in [2000, 2005, 2010, 2011] for y in counties_evicts_df.year]
+BonafideRows = [f == 0 for f in counties_evicts_df['low-flag']]
+BonafideCensusRows = [census and bonafide for census, bonafide in zip(cntyCensusYears, BonafideRows)]
 
 '''###--- Add County Boxblot Time-Series Traces ----------------------'''
 poverty_trace = go.Box(
@@ -269,15 +290,14 @@ determinationCoeffTimeSeriesTrace = go.Scatter(
     visible = 'legendonly',
 )
 corrTimeSeriesData = [corrTimeSeriesTrace, determinationCoeffTimeSeriesTrace]
-corrTimeSeriesLayout = dict(title = 'Correlation on a Scale From -1.0 to 1.0',
+corrTimeSeriesLayout = dict(#title = 'Correlation on a Scale From -1.0 to 1.0',
+                        titlefont = {'size': 15, 'color': '#e24000'},
              			xaxis = dict(title = 'Year'),
              			yaxis = dict(title = 'Pearson Corr. Coeff.'),
               			#boxmode = 'group',
-						height = 300,
-						legend = dict(#x = -.1,
-                                    #y = 1.1,
-									  orientation = 'v'
-									  ),
+						#height = 150,
+                        #margin = {'t': 10, 'b': 10},
+						#legend = dict(#x = -.1, #y = 1.1, orientation = 'v'),
                         paper_bgcolor = '#F4F4F8',
                         plot_bgcolor = '#F4F4F8',
 						)
@@ -322,8 +342,13 @@ bsRepsTrace = go.Histogram(
     #xbins = {'start': -1.0, 'end': 1.0, 'size' : .1}
 )
 bsReplicatesData = [bsRepsTrace]
-bsReplicatesLayout = go.Layout(title = '95% Confidence Interval for Corr. Coeff: {}'.format(np.percentile(bs_replicates, [2.5, 97.5]).round(2)),
-    xaxis = {'title': 'Coefficient'},
+bsReplicatesLayout = go.Layout(
+    #title = '95% Confidence Interval for Corr. Coeff: {}'.format(np.percentile(bs_replicates, [2.5, 97.5]).round(2)),
+    title = '{}'.format(np.percentile(bs_replicates, [2.5, 97.5]).round(2)),
+    titlefont = {'size': 15, 'color': el_orange},
+    height = 250,
+    margin = {'t': 40, 'b': 30},
+    #xaxis = {'title': 'Coefficient'},
     yaxis = {'title': 'Count'},
     hovermode = 'closest',
     paper_bgcolor = '#F4F4F8',
@@ -365,25 +390,7 @@ bsReplicatesLayout = go.Layout(title = '95% Confidence Interval for Corr. Coeff:
         #},
     ]
 )
-# - initialize some utility variables -------
 
-YEARS = [1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016]
-'''BINS = ['0-2', '2.1-4', '4.1-6', '6.1-8', '8.1-10', '10.1-12', '12.1-14', \
-		'14.1-16', '16.1-18', '18.1-20', '20.1-22', '22.1-24',  '24.1-26', \
-		'26.1-28', '28.1-30', '>30']
-DEFAULT_COLORSCALE = ["#2a4858", "#265465", "#1e6172", "#106e7c", "#007b84", \
-	"#00898a", "#00968e", "#19a390", "#31b08f", "#4abd8c", "#64c988", \
-	"#80d482", "#9cdf7c", "#bae976", "#d9f271", "#fafa6e"]
-DEFAULT_OPACITY = 0.4
-DEFAULT_COLORSCALE = reversed(DEFAULT_COLORSCALE)
-#mapbox_access_token = "pk.eyJ1IjoiamFja3AiLCJhIjoidGpzN0lXVSJ9.7YK6eRwUNFwd3ODZff6JvA"
-'''
-el_orange = '#e24000'
-el_purple = '#434878'
-el_green = '#2c897f'
-cntyCensusYears = [y in [2000, 2005, 2010, 2011] for y in counties_evicts_df.year]
-BonafideRows = [f == 0 for f in counties_evicts_df['low-flag']]
-BonafideCensusRows = [census and bonafide for census, bonafide in zip(cntyCensusYears, BonafideRows)]
 '''
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~ APP LAYOUT ~~~~~~~~~
@@ -415,15 +422,16 @@ app.layout = html.Div(children=[
                     'src': 'https://evictionlab.org/map/#/2016?geography=counties&bounds=-90.752,31.558,-81.512,38.125&type=er&choropleth=pr&locations=47,-86.074,35.831%2B47037,-86.785,36.187%2B47157,-89.897,35.184'
                     },
                     style = {'margin': 20, 'marginRight': 0}),
-        html.P("The Eviction Lab's Own Website and Interactive Map: (All content © 2018 Eviction Lab. All rights reserved)", style = {'margin': 5}),
+        html.P("The Eviction Lab's Own Website and Interactive Map: (All content © 2018 Eviction Lab. All rights reserved)", style = {'marginLeft': 20}),
         ], className = 'nine columns', style = {'marginLeft': 0, 'background-color': '#d7e3f4b3'}), #light purple #'background-color': '#e24000' #el orange
         # embeddable npr iframe with the desmond gross fresh air interview, #<iframe src="https://www.npr.org/player/embed/601783346/601892980" width="100%" height="290" frameborder="0" scrolling="no" title="NPR embedded audio player"></iframe>
-        html.H2("What the Map Shows:", className = 'three columns', style = {'marginLeft': 20}),#, style = {'color': '#2c897f'}), #el green
+        html.H2("1) What the Map Shows:", className = 'three columns', style = {'marginLeft': 20}),#, style = {'color': '#2c897f'}), #el green
         html.H5("Counties are colored in by poverty-rate (darker means poorer)", className = 'three columns', style = {'color': '#434878', 'marginLeft': 20}),
         html.P(html.I('Poverty-rate: percent of population living in poverty; recorded during census years only.', className = 'three columns', style = {'marginLeft': 35})),
         html.H5('Red bubbles are sized by eviction-rate (larger means higher eviction rate)', className = 'three columns', style = {'color': '#e24000', 'marginLeft': 20}),
         html.P(html.I('Eviction-rate: percent of the renting population that has received an eviction ruling in court; recorded annualy.', className = 'three columns', style = {'marginLeft': 35})),
-        html.P("The Eviction Lab's map is highly interactive and allows you to explore multiple aspects of thier data. But since it combines eviction data, which is collected anually, with census data, which was only collected in 2000, 2005, 2010, & 2011, it can be hard to discern exactly what the relationship between evictions and poverty has been. (I.e. if you arrow through the year slider from 2000 to 2016 you'll notice that the poverty-rate data only updates during census years. This could lead to the misleading perception that when eviction-rates change poverty-rates do not.)", className = 'three columns', style = {'marginLeft': 20}),# For simplicity's sake the rest of this analysis will focus primarily on the relationship between eviction-rates and poverty-rates.", className = 'three columns'),
+        html.Br(),
+        html.P("The Eviction Lab's map is highly interactive and allows you to explore multiple aspects of thier data. But since it combines eviction data, which is collected anually, with census data, which was only collected in 2000, 2005, 2010, & 2011, it can be hard to discern exactly what the relationship between evictions and poverty has been. (I.e. if you arrow through the year slider from 2000 to 2016 you'll notice that the poverty-rate data only updates during census years. This could lead to the misleading perception that when eviction-rates change poverty-rates do not.)", className = 'three columns', style = {'marginLeft': 20, 'marginTop': 5}),# For simplicity's sake the rest of this analysis will focus primarily on the relationship between eviction-rates and poverty-rates.", className = 'three columns'),
         #html.H5('* Only one in four families who qualifies for affordable housing programs gets any kind of help', className = 'three columns'),
         #html.H5('* A growing number [of poor renting families] are living one misstep or emergency away from eviction', className = 'three columns'), #style = {'fontSize': 12, 'margin' : 5}),
         #html.P('* This research uses data from The Eviction Lab at Princeton University, a project directed by Matthew Desmond and designed by Ashley Gromis, Lavar Edmonds, James Hendrickson, Katie Krywokulski, Lillian Leung, and Adam Porton. The Eviction Lab is funded by the JPB, Gates, and Ford Foundations as well as the Chan Zuckerberg Initiative. More information is found at evictionlab.org.', style = {'fontSize': 11}, className = 'three columns'),
@@ -431,84 +439,97 @@ app.layout = html.Div(children=[
 		dcc.Graph(id = 'time-series',
 			figure = go.Figure(data = timeSeriesData, layout = timeSeriesLayout)
 		),
-        html.H4("Explore the Correlation"),
+        html.H4('''3) TN's Overall Correlation: "Downwards" and Modest.'''),
         html.P('The scatter plot below initially seems to suggest that as the percentage of evicted renters goes up in a county, the percentage of people in poverty in that county goes down.'),
         html.Div([
-        html.P(html.I("- Click through individual years to see how the correlation has changed over the years."), style = {'marginLeft': 20}),
-        html.Div([ # year slider
-            dcc.Slider(id = 'year-slider',
-                        min=min(YEARS),
-                        max= max(YEARS),
-                        value= min(YEARS),
-                        marks = {str(year): str(year) for year in YEARS},
-                            ),
-            ], style={'width':650, 'display':'inline-block', 'marginBottom':25, 'marginLeft': 20,
-                }),
-        html.P("In fact, the correlation seems to get weaker and weaker as we approach the peak of the housing crisis around 2009."),
+
         dcc.Graph(id = 'scatter-with-slider'),
             ], style = {'marginBottom': 0, 'marginTop': 0}),
-        dcc.Checklist( id = 'checked-years',
-            options = [{'label': str(yr), 'value': str(yr)} for yr in YEARS],
-            values = [str(y) for y in YEARS],
-            labelStyle = {'display': 'inline-block', 'fontSize': 10,
-                            'margin': 1,
-                            #'marginTop': 0, 'rotation':45
-            }),
-        #html.Br(),
-        html.Div([
-            html.H4('Cutting Through the Noise'),
-            #html.P(html.I('Check the box to filter down to data from census years only.'), style = {'color': el_green}),
-			dcc.Checklist(id='census-checkbox',
-			    options=[{'label': 'Check the box to filter down to census-years only: (2000, 2005, 2010, 2011). Poverty Rates were only measured during census years.', 'value': 'census_filter'}
-                ],
-				values=[],
-				labelStyle={'display': 'inline-block', 'color': el_green},
-			),
-            html.P(html.I("- Otherwise, during non-census years, it will seem like changes in eviction-rates are met with no change whatsoever in poverty-rates."), style = {'marginLeft': 20}),
-            dcc.Checklist(id = 'low-checkbox',
-                options = [{'label': 'Low-Flag Filter. Some eviction values were flagged as under-reported by The Eviction Lab.', 'value': 'low_flag_filter'}],
-                values = [],
-                labelStyle={'display': 'inline-block'},
-            ),
-		], style={'display':'inline-block'}),
-        dcc.Graph(id = 'corr-timeseries',
-            figure = go.Figure(data = corrTimeSeriesData, layout = corrTimeSeriesLayout)
+        html.H5('5) County Trends vs State Trends'),#, style = {'marginTop': 101}),
+        html.P('''Tennesse's overall correlation is weak partly because counties with very strong "downwards" correlations (less than -.70) are "cancelling out" counties with very strong "updwards" correlation (greater than .70).'''),
+        html.P(html.I("🔍 Hover over the Histogram to see a county's rates"), style = {'color': el_green, 'marginLeft': 20}),
+        #html.P(html.I("The histogram below initally shows a 'bimodal distribution' where most counties seem to have a weak (strength less than .50) correlation between their eviction and poverty rates."), style = {'marginLeft': 20}),
+        #html.P(""),
+        dcc.Graph(id = 'corr-histogram',
+            figure = go.Figure(data = corrHistogramData, layout = corrHistogramLayout),
+
+        ),
+        html.P('95% Confidence Interval for Correlation Coefficient for Selected Years and Counties', style = {'marginTop': 15, 'textAlign': 'center'}),
+        dcc.Graph(id = 'bootstrap-replicates-distribution',
+            figure = go.Figure(data = bsReplicatesData, layout = bsReplicatesLayout)
         ),
 	], className='seven columns', style={'margin':20}),
     html.Div([# -- RIGHT COLUMN
         html.Div([
             html.Br(),
-            html.H4("How Eviction and Poverty Rates Have Changed Over Time")
+            html.H2("2) How the Eviction and Poverty Rates Have Changed Over Time")
         ], #style={'display': 'inline-block', 'marginTop': 20}
         ),
-        html.P(html.I("- The dotted lines show Tennessee's average poverty rate and eviction rates over the years, but averages can be distorted by a even a few outliers."), style = {'marginLeft': 25}),
-        html.H6(html.I("- For better a better idea of the overall distribution of poverty and eviction rates for TN counties click on the third and fourth items on the legend. They show the box-plot distributions for all of TN counties over the years."),style = {'marginLeft': 25, 'color': el_green}),
+        html.P(html.I("- The dotted lines show Tennessee's average poverty rate and eviction rates over the years, but averages can be distorted by even a few outliers."), style = {'marginLeft': 25}),
+        html.P(html.I("🔍 For a better idea of the overall distribution of poverty and eviction rates for TN counties click on the third and fourth items on the legend. They show the box-plot distributions for all of TN counties over the years."),style = {'marginLeft': 25, 'color': el_green}),
         html.P(html.I("- You can also scroll through the legend and click on the county you want to inspect individually."),style = {'marginLeft': 25}),
         html.P([
             "Notice that some counties have likely under-reported their eviction rates during some years. In fact, the entire state of TN has been flagged as under-reporting it's eviction rates because over 25% of TN counties under-report their own eviction rates.  ",
             html.A("See page 39 of the Eviction Lab's Methodology report pdf for the technical methods used for this determination.", href = 'https://evictionlab.org/docs/Eviction%20Lab%20Methodology%20Report.pdf', target = "_blank", style = {'fontSize': 11, 'display': 'inline-block'})
             ], style = {'color': el_orange}),
-        html.Br(),
-        html.Br(),
-        html.H4('County Trends vs State Trends'),
-        html.P('''TN's state-level overall correlation is weak, but there are counties with very strong "downwards" correlations (less than -.70) that, when taken as an average, are cancelling out those counties with very strong "updwards" correlation (greater than .70).'''),
-        #html.P(html.I("The histogram below initally shows a 'bimodal distribution' where most counties seem to have a weak (strength less than .50) correlation between their eviction and poverty rates."), style = {'marginLeft': 20}),
-        #html.P(""),
-        dcc.Graph(id = 'corr-histogram',
-            figure = go.Figure(data = corrHistogramData, layout = corrHistogramLayout)
+        #html.Br(),
+        html.H4('''4) The Historical Trajectory of the Correlation''', style = {'marginTop': 55}),
+        html.P('However, after the peak of the housing crisis in 2009 the correlation appears to begin to disappear. Or perhaps "the pendulum is beginning to swing the other way" and a stronger "upwards" correlation has just begun to take root.'),
+        html.P(html.I('🔍 Click through individual years to see how the correlation has been shifting away from a weak "downwards" correlation.'), style = {'marginLeft': 20, 'color': el_green}),
+        html.Div(# year slider
+        [
+            dcc.Slider(id = 'year-slider',
+                        min=min(YEARS),
+                        max= max(YEARS),
+                        value= min(YEARS),
+                        marks = {year: {'label': str(year), 'style': {'color': el_purple}} if year in [2000, 2005, 2010, 2011] else {'label': str(year), 'style': {'color': el_orange}} for year in YEARS},
+                        included = False,
+            ),
+        ], style={
+            #'width':650,
+            #'display':'inline-block',
+            'marginBottom':25,
+            #'marginLeft': 20,
+            'color': el_orange}
         ),
-        html.P(html.I("Hover over the Histogram to see a county's rates"), style = {'color': el_green, 'marginLeft': 20}),
-        html.H5('When we filter down to census-year data we can see that, in fact, most counties have a significant correlation between eviction and poverty rates. But the effect is polarized; In some counties eviction and poverty rates seem to, like magnets, repel eachother, and in others they seem to attract eachother.', style = {'color': el_orange}),
-        html.P("Select a county to analyze its individual correlation data", style={'display': 'inline-block', 'color': el_green}),
+        html.P('Correlation Coefficient For Selected Years and Counties:', style = {'marginTop': 15, 'textAlign': 'center'}),
+        dcc.Graph(id = 'corr-timeseries',
+            figure = go.Figure(data = corrTimeSeriesData, layout = corrTimeSeriesLayout), style = {'display': 'inline-block',}, #'marginRight': 80}
+        ),
+        html.Div([
+            dcc.Checklist( id = 'checked-years',
+                options = [{'label': str(yr), 'value': str(yr)} for yr in YEARS],
+                values = [str(y) for y in YEARS],
+                labelStyle = {'display': 'inline-block', 'fontSize': 10,
+                                'margin': 1,
+                }),
+		], style={'display':'inline-block'}),
+        html.H5('6) Cutting Through the Noise', style = {'marginTop': 40}),
+        dcc.Checklist(id='census-checkbox',
+            options=[{'label': '🔍 Check the box to filter down to census-years only: (2000, 2005, 2010, 2011).',# Poverty Rates were measured only during census years.',
+                        'value': 'census_filter'}
+            ],
+            values=[],
+            labelStyle={'display': 'inline-block', 'color': el_green},
+        ),
+        #html.P(html.I("- Otherwise, during non-census years, it will seem like changes in eviction-rates are met with no change whatsoever in poverty-rates."), style = {'marginLeft': 20}),
+        html.P(html.B('When we filter down to census-year data we see that, in fact, most counties have a significant correlation. But the effect is polarized; Some counties eviction and poverty rates seem to, like magnets, repel eachother, others seem to attract eachother.'), style = {'color': el_orange}),
+        dcc.Checklist(id = 'low-checkbox',
+            options = [{'label': 'Low-Flag Filter.',#Some eviction values were flagged as under-reported by The Eviction Lab.',
+            'value': 'low_flag_filter'}],
+            values = [],
+            labelStyle={'display': 'inline-block', 'marginBottom': 10},
+        ),
+        #html.P("🔍 Select a county to analyze its individual correlation data", style={'display': 'inline-block', 'color': el_green}),
     	dcc.Dropdown(id = 'county-dropdown',
             options = [{'label':cnty, 'value':cnty} for cnty in counties_evicts_df.name.unique()],
             value = None,
+            multi = True,
+            placeholder = '🔍 Select a county to analyze its individual correlation data',
     	),
-        #html.Br(),
-        dcc.Graph(id = 'bootstrap-replicates-distribution',
-            figure = go.Figure(data = bsReplicatesData, layout = bsReplicatesLayout)
-        ),
-        html.P('* This research uses data from The Eviction Lab at Princeton University, a project directed by Matthew Desmond and designed by Ashley Gromis, Lavar Edmonds, James Hendrickson, Katie Krywokulski, Lillian Leung, and Adam Porton. The Eviction Lab is funded by the JPB, Gates, and Ford Foundations as well as the Chan Zuckerberg Initiative. More information is found at evictionlab.org., consulted, 07-24-2018, CST')
+        html.B('Beware "Cherry-Picking"'), html.P("A single county only has four data points (the census years). That's just not enough to find a good degree of confidence in the hypothesized correlation coefficient. One possible way to overcome this obstacle in the future would be a reliable source of annual poverty information for each county. In the meatime you can use the confidence interval chart to gague the reliability of your filtered findings. If the confidence does not have a tight bell-curve behind it, then you can be 95% confident that you don't know what the correlation coefficient actually is.", style = {'display': 'inline-block'}),
+
+        #html.P('* This research uses data from The Eviction Lab at Princeton University, a project directed by Matthew Desmond and designed by Ashley Gromis, Lavar Edmonds, James Hendrickson, Katie Krywokulski, Lillian Leung, and Adam Porton. The Eviction Lab is funded by the JPB, Gates, and Ford Foundations as well as the Chan Zuckerberg Initiative. More information is found at evictionlab.org., consulted, 07-24-2018, CST')
 	], className='five columns', style={'margin':0}),
 ])
 ## Stlye Sheet
@@ -645,8 +666,7 @@ def update_scatter(selected_year, checklist_values, checked_year_values, selecte
     dash.dependencies.Output('corr-timeseries', 'figure'),
     [dash.dependencies.Input('year-slider', 'value'),
                         Input('low-checkbox', 'values'),
-                        Input('checked-years', 'values')
-    ])
+                        Input('checked-years', 'values')])
 def update_corrTimeSeries(selected_year, checklist_values, checked_year_values):
     #------ handle filters
     fltr = [str(y) in checked_year_values for y in counties_evicts_df.year]
@@ -673,10 +693,10 @@ def update_corrTimeSeries(selected_year, checklist_values, checked_year_values):
         go.Scatter(
             x = x,
             y = y,
-            name = 'Pearson Corr. Coeff.',
+            name = 'Pearson Correlation Coefficient',
         	#visible = 'legendonly',
             line = dict(
-                color = '#e24000',
+                color = el_orange,
                 width = 2)
         )
     ),
@@ -684,7 +704,7 @@ def update_corrTimeSeries(selected_year, checklist_values, checked_year_values):
         go.Scatter(
             x = x,
             y = [r*r for r in y],
-            name = 'Coeff. of Determination, r-squared',
+            name = 'Coefficient of Determination, r-squared',
             line = {
                 'color' : 'magenta',
                 'width': '2'
@@ -694,19 +714,24 @@ def update_corrTimeSeries(selected_year, checklist_values, checked_year_values):
     ),
     return { # can only return first positional output
         'data': traces,
-        'layout': go.Layout(#title = 'Checked Years {}'.format(checked_year_values),
-            title= 'County-Wide Correlation Coefficient for Selected Years: {}'.format(round(np.corrcoef(
+        'layout': go.Layout(
+            #title= 'County-Wide Correlation Coefficient for Selected Years: {}'.format(round(np.corrcoef(
+            title = '{}'.format(round(np.corrcoef(
                                                                     x = filtered_df.dropna()['eviction-rate'],
                                                                     y = filtered_df.dropna()['poverty-rate']
                                                                     )[0][1], 2)
-                                                        ),
-            xaxis = {'title': 'Year'},
+            ),
+            #xaxis = {'title': 'Year'},
             yaxis = {'title': 'Coeff'},
-            #hovermode = 'spike',
             paper_bgcolor = '#F4F4F8',
             plot_bgcolor = '#F4F4F8',
-            #legend = {'x': -.1, 'y': 1.3, 'orientation': 'h'},
-
+            legend = {#'x': -.1, 'y': 1.3,'xanchor': 'left',
+                'xanchor': 'center',
+                'orientation': 'h'},
+            titlefont = {'size': 15, 'color': '#e24000'},
+            height = 230,
+            width = 580,
+            margin = {'t': 24, 'b': 20},
         )
     }
 
@@ -723,6 +748,7 @@ def update_histogram(checklist_values, checked_year_values):
     filtered_df = counties_evicts_df[fltr]
     #------ add trace for each county
     traces = []
+
     for cnty in sorted(set(filtered_df.name)):
         cc = round(
                 np.corrcoef(
@@ -731,9 +757,11 @@ def update_histogram(checklist_values, checked_year_values):
                     )[0][1],
                 3)
         if not pd.isnull(cc):
+        #if 0 == 1: #used as an on/off switch during debugging
             traces.append(go.Histogram(
                                 x = [cc],
-                                name = cnty.split(' ')[0],
+                                name = cnty,
+                                #name = cnty.split(' ')[0],
                                 #name = str(filtered_df[filtered_df.name == cnty]['poverty-rate'].dropna().mean()),
                                 text =  cnty.split(' ')[0] + ': ' +
                                         'corr. ' + str(cc) + ',\n' +
@@ -742,7 +770,12 @@ def update_histogram(checklist_values, checked_year_values):
                                 ,
                                 hoverinfo = 'text',
                                 hoverlabel = {'bgcolor': '#e24000'},
-                                marker = {'color' : '#434878', 'line':{'width': .1, 'color': 'white'}},
+                                marker = {#'color' : '#434878',
+                                    'cmax': 30,
+                                    'cmin': 0,
+                                    'color': [round(filtered_df[filtered_df.name == cnty]['poverty-rate'].dropna().median(), 3)],
+                                    'colorscale': [[0, 'rgba(215, 227, 244, 0.7)'], [1, 'rgba(37, 51, 132, 0.9)']],
+                                    'line':{'width': .2, 'color': el_purple}},
                                 #marker = {
                                 #    'color': 'red',
                                 #    'line': {
@@ -758,25 +791,47 @@ def update_histogram(checklist_values, checked_year_values):
                                 #    }
                                 #},
                                 #opacity = 1,
-                                opacity = filtered_df[filtered_df.name == cnty]['poverty-rate'].dropna().mean()/30, #scaled over 30 since that is the max saturation value on eviction lab's own choropleth
+
+                                #used as a proxy for colorscale of purples; before I figured out how to use the rgba array.
+                                #opacity = filtered_df[filtered_df.name == cnty]['poverty-rate'].dropna().mean()/30, #scaled over 30 since that is the max saturation value on eviction lab's own choropleth
+
                                 #opacity = filtered_df[filtered_df.name == cnty]['pct-white'].dropna().mean()/100,
                                 #cumulative = True,
                                 #autobinx = False,
                                 xbins = {'start': -1, 'end': 1, 'size' : .1}
 
             ))
+    colorBarStandInTrace = {
+        'x': [2],
+        'name': 'color bar',
+        'marker': {
+            'cmax': 30,
+            'cmin': 0,
+            'color': [0, 5, 10, 15, 20, 25, 30, 35],
+            #'color': el_purple,
+            'colorscale': [[0, 'rgba(215, 227, 244, 0.7)'], [1, 'rgba(37, 51, 132, 0.9)']],
+            'showscale': True,
+            'colorbar': {'title': 'Poverty Rate', 'titleside': 'top', 'outlinecolor': 'white', 'outlinewidth': 0, 'ticksuffix': '%', 'x': -.3},
+        },
+        'type': 'histogram',
+        'uid': '2b3561',
+        'xbins': {'start': -1, 'end': 1, 'size' : .1}
+    }
+    traces.append(colorBarStandInTrace)
     return { # can only return first positional output
         'data': traces,
         'layout': go.Layout(#title = 'Checked Years {}'.format(checked_year_values),
             title= 'Histogram of County Correlation Coefficients for Selected Years',
-            xaxis = {'title': 'Coefficient'},
+            xaxis = {'title': 'Coefficient', 'range': [-1, 1]},
             yaxis = {'title': 'Count'},
             hovermode = 'closest',
             paper_bgcolor = '#F4F4F8',
             plot_bgcolor = '#F4F4F8',
-            #legend = {'x': -.1, 'y': 1.3, 'orientation': 'h'},
+            legend = {#'x': -.1, 'y': 1.3,
+                'orientation': 'v', 'xanchor': 'left'},
             #cumulative = True,
-            #colorbar = True
+            height = 200,
+            margin = {'t': 28, 'b': 28},
             barmode = 'stack',
             #bargap = 0.8,
             #bargroupgap = 0.5,
@@ -835,15 +890,19 @@ def update_confidence_interval(checklist_values, checked_year_values, selected_c
 
     return { # can only return first positional output
         'data': traces,
-        'layout': go.Layout(title = '95% Confidence Interval for Corr. Coeff: {}'.format(np.percentile(xbn, [2.5, 97.5]).round(2)),
-
+        'layout': go.Layout(#title = '95% Confidence Interval for Corr. Coeff: {}'.format(np.percentile(xbn, [2.5, 97.5]).round(2)),
+                        title = '{}'.format(np.percentile(bs_replicates, [2.5, 97.5]).round(2)),
+                        titlefont = {'size': 15, 'color': el_orange},
+                        height = 90,
+                        width = 710,
+                        margin = {'t': 24, 'b': 18, 'l': 140},
                         yaxis = {'title': 'Count'},
-                        xaxis = {'title': 'Correlation Coeff.',
+                        xaxis = {#'title': 'Correlation Coeff.',
                             'range': [-1.1, 1.1]},
                         hovermode = 'closest',
                         paper_bgcolor = '#F4F4F8',
                         plot_bgcolor = '#F4F4F8',
-                        #legend = {'x': -.1, 'y': 1.3, 'orientation': 'h'},
+                        legend = {'x': -.1, 'y': 1.3, 'orientation': 'h'},
                         #cumulative = True,
                         #colorbar = True,
                         shapes = [
