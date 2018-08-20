@@ -89,6 +89,14 @@ eviction_state_trace = go.Scatter(
     line = dict(color = '#e24000', dash = 'dash', width = 1)
 	#visible = 'legendonly',
 )
+eviction_under_reporters_trace = (go.Box(
+    x = counties_evicts_df[counties_evicts_df['low-flag'] == 1].year,
+    y = counties_evicts_df[counties_evicts_df['low-flag'] == 1]['eviction-rate'],
+    name = 'Under-reporters',
+    visible = 'legendonly',
+    marker = {'color': 'dark yellow', 'opacity': .75, 'symbol' : 'square'}
+))
+
 '''filing_trace = go.Box(
     y = counties_evicts_df['eviction-filing-rate'],
     x = counties_evicts_df.year,
@@ -136,7 +144,7 @@ davidsonEvicFilingRateTrace = go.Scatter(
         width = 2)
 )'''
 timeSeriesData = [poverty_state_trace, eviction_state_trace, #filing_state_trace,
-					poverty_trace,  eviction_trace, #filing_trace,
+					poverty_trace,  eviction_trace, eviction_under_reporters_trace, #filing_trace,
 					#davidsonPovertyTrace, davidsonEvicRateTrace, davidsonEvicFilingRateTrace,
 					]
 '''###--- add each county poverty and eviction rates traces in a loop'''
@@ -163,7 +171,7 @@ for cnty in counties_evicts_df.name.unique():
         name = cnty+' flagged low',
         visible = 'legendonly',
         mode = 'markers',
-        marker = {'color': 'yellow', 'opacity': .5,
+        marker = {'color': 'dark yellow', 'opacity': .5,
             'line': {'width':1, 'color': 'grey'},
             'size': 13
         }
@@ -174,8 +182,9 @@ timeSeriesLayout = dict(title = 'Evictions & Poverty Time Series',
              			xaxis = dict(title = 'Year'),
              			yaxis = dict(title = 'Percent %'),
               			boxmode = 'group',
-						#height = 500,
-						#legend = dict(x = -.1, y = 1.1,
+						height = 500,
+                        width = 750,
+                        #legend = dict(x = -.1, y = 1.1,
 									  #orientation = 'h'
 						#			  )
                         paper_bgcolor = '#F4F4F8',
@@ -598,7 +607,8 @@ def update_scatter(selected_year, checklist_values, checked_year_values, selecte
         fltr = [f and bnfd for f, bnfd in zip(fltr, BonafideRows)]
     filtered_df = counties_evicts_df[fltr]
     # filter by county
-    if selected_county != None:
+    #if selected_county != None:
+    if selected_county: #pythonically leverage some sort of inherent boolean attribute of empty objects
         filtered_df = filtered_df[[cnty in selected_county for cnty in filtered_df.name]]
     #------ add checked year(s) scatter and line
     traces=[]
@@ -759,21 +769,21 @@ def update_corrTimeSeries(selected_year, checklist_values, checked_year_values):
         'layout': go.Layout(
             #title= 'County-Wide Correlation Coefficient for Selected Years: {}'.format(round(np.corrcoef(
             title = '{}'.format(round(np.corrcoef(
-                                                                    x = filtered_df.dropna()['eviction-rate'],
-                                                                    y = filtered_df.dropna()['poverty-rate']
-                                                                    )[0][1], 2)
+                                                    x = filtered_df.dropna()['eviction-rate'],
+                                                    y = filtered_df.dropna()['poverty-rate']
+                                    )[0][1], 2)
             ),
             #xaxis = {'title': 'Year'},
             yaxis = {'title': 'Coeff'},
             paper_bgcolor = '#F4F4F8',
             plot_bgcolor = '#F4F4F8',
             legend = {#'x': -.1, 'y': 1.3,'xanchor': 'left',
-                'xanchor': 'left',
-                'orientation': 'v'},
+                #'xanchor': 'left',
+                'orientation': 'h'},
             titlefont = {'size': 15, 'color': '#e24000'},
             height = 230,
             #width = 580,
-            margin = {'t': 24, 'b': 20},
+            margin = {'t': 24, 'b': 20, 'r': 150},
         )
     }
 
@@ -873,7 +883,11 @@ def update_histogram(checklist_values, checked_year_values):
                 'orientation': 'v', 'xanchor': 'left'},
             #cumulative = True,
             height = 200,
-            margin = {'t': 28, 'b': 28, 'r': 10, 'l': 20},
+            width = 800,
+            margin = {'t': 28,
+                'b': 28,
+                'r': 0, 'l': 140
+                },
             barmode = 'stack',
             #bargap = 0.8,
             #bargroupgap = 0.5,
@@ -894,7 +908,8 @@ def update_confidence_interval(checklist_values, checked_year_values, selected_c
     if 'low_flag_filter' in checklist_values:
         fltr = [f and bnfd for f, bnfd in zip(fltr, BonafideRows)]
     filtered_df = counties_evicts_df[fltr]
-    if selected_county != None:
+    #if selected_county != None:
+    if selected_county:
         filtered_df = filtered_df[[cnty in selected_county for cnty in filtered_df.name]]
     #------ add trace for each county
     traces = []
