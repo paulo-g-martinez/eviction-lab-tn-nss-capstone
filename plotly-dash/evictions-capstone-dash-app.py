@@ -174,7 +174,7 @@ timeSeriesLayout = dict(title = 'Evictions & Poverty Time Series',
              			xaxis = dict(title = 'Year'),
              			yaxis = dict(title = 'Percent %'),
               			boxmode = 'group',
-						height = 500,
+						#height = 500,
 						#legend = dict(x = -.1, y = 1.1,
 									  #orientation = 'h'
 						#			  )
@@ -400,137 +400,179 @@ bsReplicatesLayout = go.Layout(
 
 app.layout = html.Div(children=[
     html.H1(children = 'Evictions & Poverty in Tennessee, 2000 - 2016',
-        style = {'margin': 20, 'marginTop': 10, 'color': '#e24000'}
+        style = {'margin': 20, 'marginTop': 20, 'color': el_orange}
     ),
-    html.H4("Here's the Story:", style = {'margin': 20, 'color': "#434878"}),#, className = 'three columns'),
-    html.H5('* "Today, most poor renting families spend at least half of their income on housing costs"', style = {'margin': 20}),#, className = 'three columns'),
-    html.H5('* "One in four of those families spending over 70 percent of their income just on rent and utilities"', style = {'margin': 20}),#, className = 'three columns'),
-    html.H5('* "Incomes for Americans of modest means have flatlined while housing costs have soared"', style = {'margin': 20}),#, className = 'three columns'),
-    html.H5('* "Only one in four families who qualifies for affordable housing programs gets any kind of help"', style = {'margin': 20}),#, className = 'three columns'),
-    html.H5('* "Almost everywhere in the United States, evictions take place in civil court, where renters have no right to an attorney"', style = {'margin': 20}),
-    html.H5('* "A growing number [of poor renting families] are living one misstep or emergency away from eviction"', style = {'margin': 20}),#, className = 'three columns'), #style = {'fontSize': 12, 'margin' : 5}),
-    html.P('* This research uses data from The Eviction Lab at Princeton University, a project directed by Matthew Desmond and designed by Ashley Gromis, Lavar Edmonds, James Hendrickson, Katie Krywokulski, Lillian Leung, and Adam Porton. The Eviction Lab is funded by the JPB, Gates, and Ford Foundations as well as the Chan Zuckerberg Initiative. More information is found at evictionlab.org.', style = {'margin': 20, 'fontSize': 11}),#, style = {'fontSize': 11}, className = 'three columns'),
-    #html.Br(),
-    html.Div( #second row, as it were
+    html.Div(children=[ #first row
+        html.H2("Here's the Story:", style = {'margin': 20}),#, className = 'three columns'),
+        html.H5(' - "Today, most poor renting families spend at least half of their income on housing costs*"', style = {'margin': 20}),#, className = 'three columns'),
+        html.H5(' - "One in four of those families spending over 70 percent of their income just on rent and utilities*"', style = {'margin': 20}),#, className = 'three columns'),
+        html.H5(' - "Incomes for Americans of modest means have flatlined while housing costs have soared*"', style = {'margin': 20}),#, className = 'three columns'),
+        html.H5(' - "Only one in four families who qualifies for affordable housing programs gets any kind of help*"', style = {'margin': 20}),#, className = 'three columns'),
+        html.H5(' - "Almost everywhere in the United States, evictions take place in civil court, where renters have no right to an attorney*"', style = {'margin': 20}),
+        html.H5(' - "A growing number [of poor renting families] are living one misstep or emergency away from eviction*"', style = {'margin': 20}),#, className = 'three columns'), #style = {'fontSize': 12, 'margin' : 5}),
+        html.P(
+            '* This research uses data from The Eviction Lab at Princeton University, a project directed by Matthew Desmond and designed by Ashley Gromis, Lavar Edmonds, James Hendrickson, Katie Krywokulski, Lillian Leung, and Adam Porton. The Eviction Lab is funded by the JPB, Gates, and Ford Foundations as well as the Chan Zuckerberg Initiative. More information is found at evictionlab.org.',
+            style = {'margin': 20, 'fontSize': 11, 'fontFamily': 'Monaco, monospace', 'color':'grey'}
+        ),#, style = {'fontSize': 11}, className = 'three columns'),
+        html.Div([
+            html.H2("25% of Tennessee counties under-report their eviction data.*", style = {'textAlign': 'right', 'marginTop': 100}),
+
+        ], style = {'textAlign': 'right', 'marginRight': 20}),
+
+        #html.H2('Is There a Correlation Between Evictions and Poverty in Tennesse?', style = {'marginBottom': 40, 'textAlign': 'right', 'marginTop': 60, 'margin': 20, 'marginLeft': 40}),
+    ]),# end first row
+    html.Div( #second row,
+        #left column
         children = [
         html.Iframe(# inset of evictionlab.org map page
-                    **{ #kwargs passed as a dictionary
+                    **{ #kwargs passed as a dictionar
                     'id':'eviction-lab-iframe',
                     'title':'Eviction Lab iframe',
                     'width': '97%',
                     'height': 700,
-                    'src': 'https://evictionlab.org/map/#/2016?geography=counties&bounds=-90.752,31.558,-81.512,38.125&type=er&choropleth=pr&locations=47,-86.074,35.831%2B47037,-86.785,36.187%2B47157,-89.897,35.184'
+                    'src': 'https://evictionlab.org/map/#/2016?geography=counties&bounds=-90.752,31.558,-81.512,38.125&type=er&choropleth=pr&locations=47,-86.074,35.831%2B47037,-86.785,36.187%2B47157'#,-89.897,35.184'
                     },
-                    style = {'margin': 20, 'marginRight': 0}),
+                    style = {'marginLeft': 20, 'marginRight': 0}),
         html.P("The Eviction Lab's Own Website and Interactive Map: (All content © 2018 Eviction Lab. All rights reserved)", style = {'marginLeft': 20}),
-        ], className = 'nine columns', style = {'marginLeft': 0, 'background-color': '#d7e3f4b3'}), #light purple #'background-color': '#e24000' #el orange
-        # embeddable npr iframe with the desmond gross fresh air interview, #<iframe src="https://www.npr.org/player/embed/601783346/601892980" width="100%" height="290" frameborder="0" scrolling="no" title="NPR embedded audio player"></iframe>
-        html.H2("1) What the Map Shows:", className = 'three columns', style = {'marginLeft': 20}),#, style = {'color': '#2c897f'}), #el green
-        html.H5("Counties are colored in by poverty-rate (darker means poorer)", className = 'three columns', style = {'color': '#434878', 'marginLeft': 20}),
-        html.P(html.I('Poverty-rate: percent of population living in poverty; recorded during census years only.', className = 'three columns', style = {'marginLeft': 35})),
-        html.H5('Red bubbles are sized by eviction-rate (larger means higher eviction rate)', className = 'three columns', style = {'color': '#e24000', 'marginLeft': 20}),
-        html.P(html.I('Eviction-rate: percent of the renting population that has received an eviction ruling in court; recorded annualy.', className = 'three columns', style = {'marginLeft': 35})),
+        ], className = 'nine columns', style = {'marginLeft': 0}),#, 'background-color': '#d7e3f4b3'}), #light purple #'background-color': '#e24000' #el orange
+        # embeddable iframe with the NPR desmond gross fresh air interview, #<iframe src="https://www.npr.org/player/embed/601783346/601892980" width="100%" height="290" frameborder="0" scrolling="no" title="NPR embedded audio player"></iframe>
+        #html.H2("1) What the Map Shows:", className = 'three columns', style = {'marginLeft': 20, 'color': el_purple}),#, style = {'color': '#2c897f'}), #el green
+        #html.H2("25% of Tennessee counties under-report their eviction data.", style = {'marginLeft': 20, 'marginTop': 0, 'textAlign': 'left'}),
+        html.I([html.A("* See page 39 of the Eviction Lab's Methodology report pdf for the technical methods used for this determination.",
+                href = 'https://evictionlab.org/docs/Eviction%20Lab%20Methodology%20Report.pdf',
+                target = "_blank",
+                style = {'fontSize': 11},
+                ),
+        ], className = 'three columns', style = {'marginLeft': 20, 'marginTop': 0}),
+        html.H5(['🔍', html.I("The Eviction Lab's map is highly interactive. Click on a county to see more information about its eviction and poverty data.")], className = 'three columns', style = {'color': el_green, 'marginLeft': 20}),
+        html.Div([
+            html.H6(html.B('Technical Specifications: ')),
+            html.P([html.B('- Poverty Rate: '), 'Percent of population living in poverty; recorded during census years only']),#'fontFamily': 'DecimaMono,Consolas,Monaco,monospace'}),
+            html.P([html.B('- Eviction Rate: '),'Percent of the renting population that has received an eviction ruling in court; recorded annualy']),
+            html.P([html.B('- Red bubbles: '),'Are sized by eviction rate (a larger bubble indicates a higher eviction rate)']),
+            html.P([html.B('- Shading: '), 'Counties are shaded in by poverty rate (a deeper shade indicates a higher poverty rate)']),
+            html.P([html.B('Periodicity Problem: '), "The map combines eviction data (which is collected anually) with census data (which was only collected in 2000, 2005, 2010, & 2011) making it more difficult to discern exactly what the relationship between evictions and poverty has been. (I.e. if you arrow through the year slider from 2000 to 2016 you'll notice that the poverty rate data only updates during census years. This could lead to the misleading perception that when eviction rates change poverty-rates do not.)", html.P("   For simplicity the rest of this analysis will focus primarily on the relationship between eviction-rates and poverty-rates. It should be noted, however, that potentially significant differentiation across the racial composition and urbanization of a county has also been observed prima facie and requires further investigation.")]),
+            ], className = 'three columns', style = {'fontFamily': 'Times New Romann, Times, serif', 'marginLeft': 20, 'marginTop': 30, 'color': 'grey'}),
+    html.Div([# third row
+        html.H2('One out of every four Tennessee counties has a poverty rate above 17%', style = {'marginLeft': 20, 'marginBottom': 0, 'marginTop': 60}),
+        html.Div([# third row left column
+            html.H5(" TN's average poverty rate was 13% during the last census (in 2011). But that average has been skewed downwards by a few outlier counties with very low poverty rates.", style = {'marginTop': 0}),
+            html.H5(['🔍 ', html.I("Scroll through the chart's legend and click on any county to see its eviction and poverty rates and for which years, if any, it under-reported its eviction data.")], style = {'marginLeft': 25, 'color': el_green}),
+            html.P([
+                html.H6(html.B('Displaying & analyzing the annual distributions: ')),
+                html.P('- Click on the 3rd or 4th items in the chart legend to display a time series of box plots.'),
+                html.P('- Hover over a box plot to display the values of each quartile as well as the median value.'),
+                html.P('- Double click a legend item to toggle between isolating that trace and displaying all traces together.'),
+                html.P('- Click and drag over the plot area to zoom into the selected area. (Double click anywhere on the plot area to reset to the default zoom.)'),
+                html.P('- Click and drag over the tick marks of an axis to scroll through that axis.'),
+            ] ,style = {'marginLeft': 25, 'color': 'grey', 'fontFamily': 'Times New Roman, Times, serif'}),
+        ], className = 'five columns', style = {'margin': 20}),
+        html.Div([# third row right column
+            dcc.Graph(id = 'time-series',
+    			     figure = go.Figure(data = timeSeriesData, layout = timeSeriesLayout),
+    		          ),
+        ], className = 'six columns', ),
+    ],style = {'margin': 20, 'marginLeft': 0}),
+    html.Br(),
+    html.Div([# fourth row
         html.Br(),
-        html.P("The Eviction Lab's map is highly interactive and allows you to explore multiple aspects of thier data. But since it combines eviction data, which is collected anually, with census data, which was only collected in 2000, 2005, 2010, & 2011, it can be hard to discern exactly what the relationship between evictions and poverty has been. (I.e. if you arrow through the year slider from 2000 to 2016 you'll notice that the poverty-rate data only updates during census years. This could lead to the misleading perception that when eviction-rates change poverty-rates do not.)", className = 'three columns', style = {'marginLeft': 20, 'marginTop': 5}),# For simplicity's sake the rest of this analysis will focus primarily on the relationship between eviction-rates and poverty-rates.", className = 'three columns'),
-        #html.H5('* Only one in four families who qualifies for affordable housing programs gets any kind of help', className = 'three columns'),
-        #html.H5('* A growing number [of poor renting families] are living one misstep or emergency away from eviction', className = 'three columns'), #style = {'fontSize': 12, 'margin' : 5}),
-        #html.P('* This research uses data from The Eviction Lab at Princeton University, a project directed by Matthew Desmond and designed by Ashley Gromis, Lavar Edmonds, James Hendrickson, Katie Krywokulski, Lillian Leung, and Adam Porton. The Eviction Lab is funded by the JPB, Gates, and Ford Foundations as well as the Chan Zuckerberg Initiative. More information is found at evictionlab.org.', style = {'fontSize': 11}, className = 'three columns'),
-    html.Div([ #-- LEFT COLUMN
-		dcc.Graph(id = 'time-series',
-			figure = go.Figure(data = timeSeriesData, layout = timeSeriesLayout)
-		),
-        html.H4('''3) TN's Overall Correlation: "Downwards" and Modest.'''),
-        html.P('The scatter plot below initially seems to suggest that as the percentage of evicted renters goes up in a county, the percentage of people in poverty in that county goes down.'),
-        html.Div([
-
-        dcc.Graph(id = 'scatter-with-slider'),
-            ], style = {'marginBottom': 0, 'marginTop': 0}),
-        html.H5('5) County Trends vs State Trends'),#, style = {'marginTop': 101}),
-        html.P('''Tennesse's overall correlation is weak partly because counties with very strong "downwards" correlations (less than -.70) are "cancelling out" counties with very strong "updwards" correlation (greater than .70).'''),
-        html.P(html.I("🔍 Hover over the Histogram to see a county's rates"), style = {'color': el_green, 'marginLeft': 20}),
-        #html.P(html.I("The histogram below initally shows a 'bimodal distribution' where most counties seem to have a weak (strength less than .50) correlation between their eviction and poverty rates."), style = {'marginLeft': 20}),
-        #html.P(""),
-        dcc.Graph(id = 'corr-histogram',
-            figure = go.Figure(data = corrHistogramData, layout = corrHistogramLayout),
-
+        html.H2('In Tennessee, eviction & poverty rates have been correlated negatively & weakly. This is changing quickly.',
+            className = 'eleven columns',
+            style = {'marginTop': 40, 'textAlign': 'right', 'marginRight': 80, 'marginBottom': 10} #margin right nnot working
         ),
-        html.P('95% Confidence Interval for Correlation Coefficient for Selected Years and Counties', style = {'marginTop': 15, 'textAlign': 'center'}),
-        dcc.Graph(id = 'bootstrap-replicates-distribution',
-            figure = go.Figure(data = bsReplicatesData, layout = bsReplicatesLayout)
-        ),
-	], className='seven columns', style={'margin':20}),
-    html.Div([# -- RIGHT COLUMN
-        html.Div([
-            html.Br(),
-            html.H2("2) How the Eviction and Poverty Rates Have Changed Over Time")
-        ], #style={'display': 'inline-block', 'marginTop': 20}
-        ),
-        html.P(html.I("- The dotted lines show Tennessee's average poverty rate and eviction rates over the years, but averages can be distorted by even a few outliers."), style = {'marginLeft': 25}),
-        html.P(html.I("🔍 For a better idea of the overall distribution of poverty and eviction rates for TN counties click on the third and fourth items on the legend. They show the box-plot distributions for all of TN counties over the years."),style = {'marginLeft': 25, 'color': el_green}),
-        html.P(html.I("- You can also scroll through the legend and click on the county you want to inspect individually."),style = {'marginLeft': 25}),
-        html.P([
-            "Notice that some counties have likely under-reported their eviction rates during some years. In fact, the entire state of TN has been flagged as under-reporting it's eviction rates because over 25% of TN counties under-report their own eviction rates.  ",
-            html.A("See page 39 of the Eviction Lab's Methodology report pdf for the technical methods used for this determination.", href = 'https://evictionlab.org/docs/Eviction%20Lab%20Methodology%20Report.pdf', target = "_blank", style = {'fontSize': 11, 'display': 'inline-block'})
-            ], style = {'color': el_orange}),
-        #html.Br(),
-        html.H4('''4) The Historical Trajectory of the Correlation''', style = {'marginTop': 55}),
-        html.P('However, after the peak of the housing crisis in 2009 the correlation appears to begin to disappear. Or perhaps "the pendulum is beginning to swing the other way" and a stronger "upwards" correlation has just begun to take root.'),
-        html.P(html.I('🔍 Click through individual years to see how the correlation has been shifting away from a weak "downwards" correlation.'), style = {'marginLeft': 20, 'color': el_green}),
-        html.Div(# year slider
-        [
-            dcc.Slider(id = 'year-slider',
-                        min=min(YEARS),
-                        max= max(YEARS),
-                        value= min(YEARS),
-                        marks = {year: {'label': str(year), 'style': {'color': el_purple}} if year in [2000, 2005, 2010, 2011] else {'label': str(year), 'style': {'color': el_orange}} for year in YEARS},
-                        included = False,
+        html.Div([# fourth row left column
+            html.Div([
+                html.Div([# year slider
+                    dcc.Slider(id = 'year-slider',
+                            min=min(YEARS),
+                            max= max(YEARS),
+                            value= min(YEARS),
+                            marks = {year: {'label': str(year), 'style': {'color': el_orange}} if year in [2000, 2005, 2010, 2011] else {'label': str(year), 'style': {'color': 'grey'}} for year in YEARS},
+                            included = False,
+                    ),
+                ], style={'marginTop': 11,
+                    #'width':650,
+                    #'display':'inline-block',
+                    'marginBottom':25,
+                    #'marginLeft': 0, #not working
+                    #'color': el_orange, #not working
+                }
+                ),
+                html.P(['🔍', html.I('Click through individual years to see how the correlation has changed.')],
+                style = {'marginTop': 20, 'marginLeft': 0, 'color': el_green}),
+                dcc.Graph(id = 'scatter-with-slider'),
+            ], style = {'marginBottom': 0, 'marginTop': 0, 'marginLeft': 0}),
+            html.Div([dcc.Checklist( id = 'checked-years',
+                    options = [{'label': str(yr), 'value': str(yr)} for yr in YEARS if yr >1999],
+                    values = [str(y) for y in YEARS if y > 1999 ],
+                    labelStyle = {'display': 'inline-block', 'fontSize': 9, 'margin': 1}),
+    		], style={'display':'inline-block'}),
+            dcc.Checklist(id = 'low-checkbox',
+                options = [{'label': 'Low-Flag Filter.',#Some eviction values were flagged as under-reported by The Eviction Lab.',
+                'value': 'low_flag_filter'}],
+                values = [],
+                labelStyle={'display': 'inline-block', 'margin': 20},
             ),
-        ], style={
-            #'width':650,
-            #'display':'inline-block',
-            'marginBottom':25,
-            #'marginLeft': 20,
-            'color': el_orange}
-        ),
-        html.P('Correlation Coefficient For Selected Years and Counties:', style = {'marginTop': 15, 'textAlign': 'center'}),
-        dcc.Graph(id = 'corr-timeseries',
-            figure = go.Figure(data = corrTimeSeriesData, layout = corrTimeSeriesLayout), style = {'display': 'inline-block',}, #'marginRight': 80}
-        ),
-        html.Div([
-            dcc.Checklist( id = 'checked-years',
-                options = [{'label': str(yr), 'value': str(yr)} for yr in YEARS],
-                values = [str(y) for y in YEARS],
-                labelStyle = {'display': 'inline-block', 'fontSize': 10,
-                                'margin': 1,
-                }),
-		], style={'display':'inline-block'}),
-        html.H5('6) Cutting Through the Noise', style = {'marginTop': 40}),
-        dcc.Checklist(id='census-checkbox',
-            options=[{'label': '🔍 Check the box to filter down to census-years only: (2000, 2005, 2010, 2011).',# Poverty Rates were measured only during census years.',
-                        'value': 'census_filter'}
-            ],
-            values=[],
-            labelStyle={'display': 'inline-block', 'color': el_green},
-        ),
-        #html.P(html.I("- Otherwise, during non-census years, it will seem like changes in eviction-rates are met with no change whatsoever in poverty-rates."), style = {'marginLeft': 20}),
-        html.P(html.B('When we filter down to census-year data we see that, in fact, most counties have a significant correlation. But the effect is polarized; Some counties eviction and poverty rates seem to, like magnets, repel eachother, others seem to attract eachother.'), style = {'color': el_orange}),
-        dcc.Checklist(id = 'low-checkbox',
-            options = [{'label': 'Low-Flag Filter.',#Some eviction values were flagged as under-reported by The Eviction Lab.',
-            'value': 'low_flag_filter'}],
-            values = [],
-            labelStyle={'display': 'inline-block', 'marginBottom': 10},
-        ),
-        #html.P("🔍 Select a county to analyze its individual correlation data", style={'display': 'inline-block', 'color': el_green}),
-    	dcc.Dropdown(id = 'county-dropdown',
-            options = [{'label':cnty, 'value':cnty} for cnty in counties_evicts_df.name.unique()],
-            value = None,
-            multi = True,
-            placeholder = '🔍 Select a county to analyze its individual correlation data',
-    	),
-        html.B('Beware "Cherry-Picking"'), html.P("A single county only has four data points (the census years). That's just not enough to find a good degree of confidence in the hypothesized correlation coefficient. One possible way to overcome this obstacle in the future would be a reliable source of annual poverty information for each county. In the meatime you can use the confidence interval chart to gague the reliability of your filtered findings. If the confidence does not have a tight bell-curve behind it, then you can be 95% confident that you don't know what the correlation coefficient actually is.", style = {'display': 'inline-block'}),
-
-        #html.P('* This research uses data from The Eviction Lab at Princeton University, a project directed by Matthew Desmond and designed by Ashley Gromis, Lavar Edmonds, James Hendrickson, Katie Krywokulski, Lillian Leung, and Adam Porton. The Eviction Lab is funded by the JPB, Gates, and Ford Foundations as well as the Chan Zuckerberg Initiative. More information is found at evictionlab.org., consulted, 07-24-2018, CST')
-	], className='five columns', style={'margin':0}),
+        ], className = 'six columns'),
+        html.Div([ # fourth row right column
+            #html.P([html.B('''But this correlation is changing quickly. It appears to be disappearing or "the pendulum is beginning to swing the other way" and a strengthening positive correlation is taking root.'''), ' (Meaning every additional increase in eviction rates would correspond to a larger and larger increase in poverty rates.)']),
+            html.H5([html.B('''The correlation appears to be disappearing. Either that or "the pendulum is beginning to swing the other way" and a strengthening positive correlation is taking root.'''), ' (Meaning every additional increase in eviction rates would correspond to a larger and larger increase in poverty rates.)'],
+            #style = {'textAlign': 'justify'}
+            ),
+            html.P('''For TN, the linear model predicts a 3% decrease in poverty rates for every 4% increase in eviction rate.''',
+            style = {'marginLeft': 20, 'marginTop': 10, 'color': 'grey', 'fontFamily': 'Times New Roman, Times, serif'}),
+            html.Div([
+                html.P('Correlation Coefficient For Selected Years and Counties:', style = {'marginTop': 15, 'textAlign': 'center'}),
+                dcc.Graph(id = 'corr-timeseries',
+                    figure = go.Figure(data = corrTimeSeriesData, layout = corrTimeSeriesLayout), style = {'display': 'inline-block',}, #'marginRight': 80}
+                ),
+            ]),
+            html.P([html.B('To overcome the periodicity problem: '), ' we can filter out eviction data from years without a census measurement of the poverty rate.'],
+            style = {'marginLeft': 20, 'marginTop': 10, 'color': 'grey', 'fontFamily': 'Times New Roman, Times, serif'}),
+            dcc.Checklist(id='census-checkbox',
+                options=[{'label': 'Census-years only: (2000, 2005, 2010, 2011).',# Poverty Rates were measured only during census years.',
+                            'value': 'census_filter'}
+                ],
+                values=['census_filter'],
+                labelStyle={'display': 'inline-block', 'color': el_green},
+            ),
+        ], className = 'five columns'),
+    ],),
+    html.Div([# fifth row
+        html.H2('''Counties' eviction & poverty rate correlations may be extreme and polarized.''',
+        className = 'eleven columns',
+        style = {'textAlign': 'left', 'marginTop': 10, 'marginLeft': 20, 'marginBottom': 0}),
+        html.Div([ #-- fifth row LEFT COLUMN
+            html.P('''While TN as a state has a weak correlation, there is evidence to suggest that the majority of its counties actually have very strong correlations between their eviction and poverty rates.''',
+            style = {'marginTop': 0}),
+            html.P('''In some counties an increase in eviction rates would seem to accompany a big decrease in the percent of that county's population that is living in poverty. But in other counties an increase in eviction rates might be accompanied by a big increase in the percent of its population that is living in poverty.''',
+            style = {'marginTop': 0}),
+            html.P(html.I("🔍 Hover over the Histogram to see a county's rates"),
+            style = {'color': el_green, 'marginTop': 0}),
+            dcc.Dropdown(id = 'county-dropdown',
+                options = [{'label':cnty, 'value':cnty} for cnty in counties_evicts_df.name.unique()],
+                value = None,
+                multi = True,
+                placeholder = '🔍 Select a county to analyze its individual correlation data',
+        	),
+            html.B('Additional data is required '), html.P("A single county only has four data points (the census years); not enough to find a good degree of confidence in the hypothesized correlation coefficient. One way to overcome this obstacle is the addition of reliable annual poverty data for each county."),
+        ], className='five columns', style={'margin':20, 'marginTop': 20}),
+        html.Div([# fifth row RIGHT COLUMN
+            dcc.Graph(id = 'corr-histogram',
+                figure = go.Figure(data = corrHistogramData, layout = corrHistogramLayout),
+                style = {'marginTop': 20},
+            ),
+            html.P('95% Confidence Interval for Correlation Coefficient for Selected Years and Counties', style = {'marginTop': 15, 'textAlign': 'center'}),
+            dcc.Graph(id = 'bootstrap-replicates-distribution',
+                figure = go.Figure(data = bsReplicatesData, layout = bsReplicatesLayout)
+            ),
+            #html.H5('6) Cutting Through the Noise', style = {'marginTop': 40}),
+            html.P("The confidence interval chart uses  200 bootstrap replicate correlation coefficients for the input data. (If the interval does not have a tight bell-curve behind it, then you can be 95% confident that you don't know what the correlation coefficient actually is.",
+            style = {'marginLeft': 20, 'color': 'grey', 'fontFamily': 'Times New Roman, Times, serif'}),
+            #html.P("🔍 Select a county to analyze its individual correlation data", style={'display': 'inline-block', 'color': el_green}),
+            #html.P('* This research uses data from The Eviction Lab at Princeton University, a project directed by Matthew Desmond and designed by Ashley Gromis, Lavar Edmonds, James Hendrickson, Katie Krywokulski, Lillian Leung, and Adam Porton. The Eviction Lab is funded by the JPB, Gates, and Ford Foundations as well as the Chan Zuckerberg Initiative. More information is found at evictionlab.org., consulted, 07-24-2018, CST')
+    	], className='six columns', style={'margin':0}),
+    ]),
 ])
 ## Stlye Sheet
 app.css.append_css({'external_url': 'https://codepen.io/plotly/pen/EQZeaW.css'}),
@@ -726,11 +768,11 @@ def update_corrTimeSeries(selected_year, checklist_values, checked_year_values):
             paper_bgcolor = '#F4F4F8',
             plot_bgcolor = '#F4F4F8',
             legend = {#'x': -.1, 'y': 1.3,'xanchor': 'left',
-                'xanchor': 'center',
-                'orientation': 'h'},
+                'xanchor': 'left',
+                'orientation': 'v'},
             titlefont = {'size': 15, 'color': '#e24000'},
             height = 230,
-            width = 580,
+            #width = 580,
             margin = {'t': 24, 'b': 20},
         )
     }
@@ -831,7 +873,7 @@ def update_histogram(checklist_values, checked_year_values):
                 'orientation': 'v', 'xanchor': 'left'},
             #cumulative = True,
             height = 200,
-            margin = {'t': 28, 'b': 28},
+            margin = {'t': 28, 'b': 28, 'r': 10, 'l': 20},
             barmode = 'stack',
             #bargap = 0.8,
             #bargroupgap = 0.5,
@@ -941,6 +983,7 @@ def update_confidence_interval(checklist_values, checked_year_values, selected_c
                             }]
             )
     }
+
 
 @app.callback(
     dash.dependencies.Output('checked-years', 'values'),
