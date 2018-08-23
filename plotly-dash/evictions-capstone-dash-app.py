@@ -555,7 +555,7 @@ app.layout = html.Div(children=[
             html.P('''While TN as a state has a weak correlation, there is evidence to suggest that the majority of its counties actually have very strong correlations between their eviction and poverty rates.''',
             style = {'marginTop': 0}),
             html.P('''In some counties an increase in eviction rates would seem to accompany a big decrease in the percent of that county's population that is living in poverty. But in other counties an increase in eviction rates might be accompanied by a big increase in the percent of its population that is living in poverty.''',
-            style = {'marginTop': 0}),
+            style = {'marginTop': 0, 'marginLeft': 20}),
             html.P(html.I("🔍 Hover over the Histogram to see a county's rates"),
             style = {'color': el_green, 'marginTop': 0}),
             dcc.Dropdown(id = 'county-dropdown',
@@ -576,7 +576,7 @@ app.layout = html.Div(children=[
                 figure = go.Figure(data = bsReplicatesData, layout = bsReplicatesLayout)
             ),
             #html.H5('6) Cutting Through the Noise', style = {'marginTop': 40}),
-            html.P("The confidence interval chart uses  200 bootstrap replicate correlation coefficients for the input data. (If the interval does not have a tight bell-curve behind it, then you can be 95% confident that you don't know what the correlation coefficient actually is.",
+            html.P("The confidence interval chart uses  200 bootstrap replicate correlation coefficients for the input data. (If the interval does not have a tight bell-curve behind it, then you can be 95% confident we you don't know what the correlation coefficient actually is.",
             style = {'marginLeft': 20, 'color': 'grey', 'fontFamily': 'Times New Roman, Times, serif'}),
             #html.P("🔍 Select a county to analyze its individual correlation data", style={'display': 'inline-block', 'color': el_green}),
             #html.P('* This research uses data from The Eviction Lab at Princeton University, a project directed by Matthew Desmond and designed by Ashley Gromis, Lavar Edmonds, James Hendrickson, Katie Krywokulski, Lillian Leung, and Adam Porton. The Eviction Lab is funded by the JPB, Gates, and Ford Foundations as well as the Chan Zuckerberg Initiative. More information is found at evictionlab.org., consulted, 07-24-2018, CST')
