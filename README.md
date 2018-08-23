@@ -1,5 +1,7 @@
 # eviction-lab-tn-nss-capstone
-Final NSS data-science project on The Eviction Lab's TN data
+Final Nashville Software School Data-Science project on The Eviction Lab's TN data
+
+### Studying and reporting on the relationship between evictions and poverty for Tennessee as captured by the Eviction Lab's data.
 
 Citations for academic publications and research reports:
 
