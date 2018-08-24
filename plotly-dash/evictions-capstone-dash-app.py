@@ -7,7 +7,7 @@ from dash.dependencies import Input, Output, State
 import pandas as pd
 import cufflinks as cf
 import numpy as np
-import re
+#import re
 
 import plotly.graph_objs as go
 from scipy import stats
@@ -408,11 +408,11 @@ bsReplicatesLayout = go.Layout(
 
 
 app.layout = html.Div(children=[
-    html.H1(children = 'Evictions & Poverty in Tennessee, 2000 - 2016',
+    html.H1(children = 'Unpacking the Eviction-Poverty Correlation in Tennessee, 2000 - 2016',
         style = {'margin': 20, 'marginTop': 20, 'color': el_orange}
     ),
     html.Div(children=[ #first row
-        html.H2("Here's the Story:", style = {'margin': 20}),#, className = 'three columns'),
+        html.H2("Why Evictions? Here's the Story:", style = {'margin': 20}),#, className = 'three columns'),
         html.H5(' - "Today, most poor renting families spend at least half of their income on housing costs*"', style = {'margin': 20}),#, className = 'three columns'),
         html.H5(' - "One in four of those families spending over 70 percent of their income just on rent and utilities*"', style = {'margin': 20}),#, className = 'three columns'),
         html.H5(' - "Incomes for Americans of modest means have flatlined while housing costs have soared*"', style = {'margin': 20}),#, className = 'three columns'),
