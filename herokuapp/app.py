@@ -412,7 +412,7 @@ app.index_string = '''
     <head>
         {%metas%}
         <meta name="viewport" content="width=device-width,initial-scale=0.625">
-        <title>Martinez Capstone</title>
+        <title>Tn Evictions</title>
         <link rel="icon" type="image/png" href="assets/corrTseriesIcon.png">
         {%css%}
     </head>
@@ -432,6 +432,16 @@ app.layout = html.Div(children=[
         html.H1( #title
             children = 'Unpacking the Eviction-Poverty Correlation in Tennessee, 2000 - 2016',
             style = {'margin': 20, 'marginTop': 20, 'color': el_orange}
+            html.P(
+                children = [
+                    'PROJECT: Paulo G. Martinez, DATA: evictionlab.org, ',
+                    html.A("CODE: Github",
+                                href = 'https://github.com/paulo-g-martinez/eviction-lab-tn-nss-capstone/tree/master/herokuapp',
+                                target = "_blank",
+                            ),
+                ],
+                style = {'margin': 20, 'fontSize': 13, 'fontFamily': 'Monaco, monospace', 'color':'grey'},
+            ),
         ),
         # embeddable me with the NPR desmond gross fresh air interview, #<me src="https://www.npr.org/player/embed/601783346/601892980" width="100%" height="290" frameborder="0" scrolling="no" title="NPR embedded audio player"></me>
         html.Div( # subtitle and bullets
@@ -443,7 +453,7 @@ app.layout = html.Div(children=[
             html.H5(' - "Only one in four families who qualifies for affordable housing programs gets any kind of help*"', style = {'margin': 20}),
             html.H5(' - "Almost everywhere in the United States, evictions take place in civil court, where renters have no right to an attorney*"', style = {'margin': 20}),
             html.H5(' - "A growing number [of poor renting families] are living one misstep or emergency away from eviction*"', style = {'margin': 20}),
-            html.P('* This research uses data from The Eviction Lab at Princeton University, a project directed by Matthew Desmond and designed by Ashley Gromis, Lavar Edmonds, James Hendrickson, Katie Krywokulski, Lillian Leung, and Adam Porton. The Eviction Lab is funded by the JPB, Gates, and Ford Foundations as well as the Chan Zuckerberg Initiative. More information is found at evictionlab.org.',
+            html.P('* This research uses data from The Eviction Lab at Princeton University, a project directed by Matthew Desmond and designed by Ashley Gromis, Lavar Edmonds, James Hendrickson, Katie Krywokulski, Lillian Leung, and Adam Porton. The Eviction Lab is funded by the JPB, Gates, and Ford Foundations as well as the Chan Zuckerberg Initiative. More information is found at evictionlab.org. Consulted June 2018.',
                 style = {'margin': 20, 'fontSize': 11, 'fontFamily': 'Monaco, monospace', 'color':'grey'},
             ),
         ]),
