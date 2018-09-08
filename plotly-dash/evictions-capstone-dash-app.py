@@ -324,15 +324,17 @@ corrHistogramLayout = go.Layout(barmode = 'stack')
 bs_replicates = np.empty(1000)
 for i in range(1000):
     # get indices of the empirical data
-    inds = list(counties_evicts_df.dropna()['eviction-rate'].index)
-
+    ##inds = list(counties_evicts_df.dropna()['eviction-rate'].index)
+    inds = list(counties_evicts_df.dropna().index)
     # get random selection of the indices (note: "double-dipping" is allowed)
-    bs_inds = np.random.choice(list(counties_evicts_df.dropna()['eviction-rate'].index),
-                              len(list(counties_evicts_df.dropna()['eviction-rate'].index)))
-
+    ##bs_inds = np.random.choice(list(counties_evicts_df.dropna()['eviction-rate'].index),
+    ##                          len(list(counties_evicts_df.dropna()['eviction-rate'].index)))
+    bs_inds = np.random.choice(inds, len(inds))
     # get the randomly sampled data pairs
-    bs_ev_rate = counties_evicts_df.dropna()['eviction-rate'][bs_inds]
-    bs_pv_rate = counties_evicts_df.dropna()['poverty-rate'][bs_inds]
+    ##bs_ev_rate = counties_evicts_df.dropna()['eviction-rate'][bs_inds]
+    bs_ev_rate = counties_evicts_df['eviction-rate'][bs_inds]
+    #bs_pv_rate = counties_evicts_df.dropna()['poverty-rate'][bs_inds]
+    bs_pv_rate = counties_evicts_df['poverty-rate'][bs_inds]
 
     # get the
     bs_replicates[i] = np.corrcoef(x = bs_ev_rate, y = bs_pv_rate)[0][1]
@@ -585,7 +587,7 @@ app.layout = html.Div(children=[
 ])
 ## Stlye Sheet
 app.css.append_css({'external_url': 'https://codepen.io/plotly/pen/EQZeaW.css'}),
-
+#print('appended css. Entering interactivity callbacks')
 '''
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~~ app interactivity/callbacks ~~~~
@@ -599,16 +601,25 @@ app.css.append_css({'external_url': 'https://codepen.io/plotly/pen/EQZeaW.css'})
                         Input('county-dropdown', 'value')
     ])
 def update_scatter(selected_year, checklist_values, checked_year_values, selected_county):
+    print('entered update scatter')
     #print('selected_year', selected_year)
     #print('============>>>>>>>>sel cnty', selected_county)
     #------ handle filters
+    print('defining fltr with ', checked_year_values)
     fltr = [str(y) in checked_year_values for y in counties_evicts_df.year]
+    print('lenght of fltr = ', len(fltr)) #
+    #print('fltr: ', fltr)
+    print('done printing fltr about to print checklist_values')
+    print('checklist_values = ', checklist_values)
     if 'low_flag_filter' in checklist_values:
+        print('redefining fltr with low flag filter')
         fltr = [f and bnfd for f, bnfd in zip(fltr, BonafideRows)]
+    print('defining filtered_df')
     filtered_df = counties_evicts_df[fltr]
     # filter by county
     #if selected_county != None:
     if selected_county: #pythonically leverage some sort of inherent boolean attribute of empty objects
+        print('redefining filtered_df with selected county')
         filtered_df = filtered_df[[cnty in selected_county for cnty in filtered_df.name]]
     #------ add checked year(s) scatter and line
     traces=[]
@@ -895,7 +906,7 @@ def update_histogram(checklist_values, checked_year_values):
         )
     }
 
-@app.callback(
+'''@app.callback(
     dash.dependencies.Output('bootstrap-replicates-distribution', 'figure'),
     [dash.dependencies.Input('low-checkbox', 'values'),
                         Input('checked-years', 'values'),
@@ -911,24 +922,38 @@ def update_confidence_interval(checklist_values, checked_year_values, selected_c
     #if selected_county != None:
     if selected_county:
         filtered_df = filtered_df[[cnty in selected_county for cnty in filtered_df.name]]
-    #------ add trace for each county
+    #------ initialize bootstrap replicates array
     traces = []
-    bs_replicates = np.zeros(200)
+    n = 30
+    bs_replicates = np.zeros(n)
     print('entering bs reps loop')
-    for i in range(200):
-        #print(i)
+    for i in range(n):
+        print('-- top of loop: ', i)
         # get indices of the empirical data
-        inds = list(filtered_df.dropna()['eviction-rate'].index)
+        ##inds = list(filtered_df.dropna()['eviction-rate'].index)
+        inds = list(filtered_df.dropna().index)
+        print('--defined inds: ', inds)
         # get random selection of the indices (note: "double-dipping" is allowed)
-        bs_inds = np.random.choice(list(filtered_df.dropna()['eviction-rate'].index),
-                                    len(list(filtered_df.dropna()['eviction-rate'].index)))
+        ##bs_inds = np.random.choice(list(filtered_df.dropna()['eviction-rate'].index),
+        ##                            len(list(filtered_df.dropna()['eviction-rate'].index)))
+        bs_inds = np.random.choice(inds, len(inds))
+        print('--defined bs_inds: ', bs_inds)
         # get the randomly sampled data pairs
-        bs_ev_rate = filtered_df.dropna()['eviction-rate'][bs_inds]
-        bs_pv_rate = filtered_df.dropna()['poverty-rate'][bs_inds]
+        ##bs_ev_rate = filtered_df.dropna()['eviction-rate'][bs_inds]
+        bs_ev_rate = filtered_df['eviction-rate'][bs_inds]
+        print('--defined bs_ev_rate: ', bs_ev_rate)
+        ##bs_pv_rate = filtered_df.dropna()['poverty-rate'][bs_inds]
+        bs_pv_rate = filtered_df['poverty-rate'][bs_inds]
+        print('--defined bs_pv_rate: ', bs_pv_rate)
         # get the bs replicates themselves
         if not pd.isnull(np.corrcoef(x = bs_ev_rate, y = bs_pv_rate)[0][1]):
+            print('----corrcoef ', i, ' was not null')
             bs_replicates[i] = np.corrcoef(x = bs_ev_rate, y = bs_pv_rate)[0][1]
-        xbn = [r for r in bs_replicates if not pd.isnull(r)]
+        else:
+            print('----corrcoef ', i, ' was null xxx')
+        print('--bs_replicates[', i, ']: ', bs_replicates[i])
+    xbn = [r for r in bs_replicates if not pd.isnull(r)]
+    print(xbn)
     traces.append(go.Histogram(
         #x = bs_replicates.dropna(),
         x = xbn,
@@ -997,7 +1022,7 @@ def update_confidence_interval(checklist_values, checked_year_values, selected_c
                             'opacity': '.1',
                             }]
             )
-    }
+    }'''
 
 
 @app.callback(
